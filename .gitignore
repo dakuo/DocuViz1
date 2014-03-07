@@ -1,0 +1,11 @@
+/bin
+/fileDB/*
+
+*.swp
+*.~
+.project
+.DS_Store
+.idea
+.secret
+/bin
+/bin

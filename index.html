@@ -1,0 +1,957 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>{{ APPLICATION_NAME }}</title>
+<script type="text/javascript">
+	(function() {
+		var po = document.createElement('script');
+		po.type = 'text/javascript';
+		po.async = true;
+		po.src = 'https://plus.google.com/js/client:plusone.js';
+
+		var s = document.getElementsByTagName('script')[0];
+		s.parentNode.insertBefore(po, s);
+
+	})();
+	(function() {
+		var po = document.createElement('script');
+		po.type = 'text/javascript';
+		po.async = true;
+		po.src = 'https://apis.google.com/js/api.js?onload=onApiLoad';
+		var s = document.getElementsByTagName('script')[0];
+		s.parentNode.insertBefore(po, s);
+
+	})();
+
+
+	// For GAPI load check
+	var pickerApiLoaded = false;
+</script>
+
+<!-- JavaScript specific to this application that is not related to API calls -->
+<script
+	src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"
+	type="text/javascript"></script>
+<script
+	src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"
+	type="text/javascript"></script>
+<link rel="stylesheet"
+	href="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/themes/start/jquery-ui.css"
+	type="text/css" media="all"></link>
+<script
+	src="//d3js.org/d3.v3.min.js" charset="utf-8"
+	type="text/javascript"></script>
+</head>
+
+<body>
+	<div id="gConnect">
+		<!--
+     	data-scope="https://www.googleapis.com/auth/plus.login email https://www.googleapis.com/auth/drive"
+        data-requestvisibleactions="http://schemas.google.com/AddActivity"
+      -->
+		<button class="g-signin"
+			data-scope="email https://www.googleapis.com/auth/drive"
+			data-clientId="{{ CLIENT_ID }}" data-accesstype="offline"
+			data-callback="onSignInCallback" data-theme="dark" data-width="wide"
+			data-cookiepolicy="single_host_origin"></button>
+	</div>
+	<div id="authOps" style="display: none">
+		<h2>Pick a Google Drive Document to see the revision history visualization</h2>
+		<p></p>
+
+		<button id="createPicker">Visualize your
+			Document</button>
+
+		<h2>Sign out and Disconnect with this app</h2>
+		<p></p>
+		<button id="disconnect">Sign out</button>
+
+		<!-- h2>User's profile information</h2>
+		<p>This data is retrieved client-side by using the Google
+			JavaScript API client library.</p>
+		<div id="profile"></div>
+
+		<h2>User's friends that are visible to this app</h2>
+		<p>This data is retrieved from your server, where your server
+			makes an authorized HTTP request on the user's behalf.</p>
+		<p>If your app uses server-side rendering, this is the section you
+			would change using your server-side templating system.</p>
+		<div id="visiblePeople"></div -->
+		
+		<div id="slider" style="display:none">
+		<p id = "sliderLable">
+			<label for="amount">Displaying Revisions:</label> <input type="text"
+				id="amount" style="border: 0; color: #f6931f; font-weight: bold;"></input>
+		</p>
+		<div id="sliderBar" style="margin-left:10px; margin-right:10px;"></div>
+		</div>
+		
+		<pre id="vizChart"></pre>
+		
+		<h2>Visualization Logs</h2>
+		<div id="progressBar" style="display:none"></div>
+		<pre id="vizResult"></pre>
+
+		<!-- Hidden <FORM> to submit the SVG data to the server, which will convert it to SVG/PDF/PNG downloadable file.
+     The form is populated and submitted by the JavaScript below. -->
+		<form id="svgform" method="post" action="saveImage">
+			<input type="hidden" id="output_format" name="output_format" value="">
+			<input type="hidden" id="data" name="data" value="">
+		</form>
+		<button id="saveButton">Save Image</button>
+		<!--  
+		<h2>Authentication Logs</h2>
+		<pre id="authResult"></pre>
+		-->
+	</div>
+	</body>
+<script type="text/javascript">
+	var helper = (function() {
+		var authResult = undefined;
+		return {
+			/**
+			 * Hides the sign-in button and connects the server-side app after
+			 * the user successfully signs in.
+			 *
+			 * @param {Object} authResult An Object which contains the access token and
+			 *   other authentication information.
+			 */
+			onSignInCallback : function(authResult) {
+				//TODO may be deleted after deployment
+				//$('#authResult').hide();
+
+				$('#authResult').html('Auth Result:<br/>');
+				for ( var field in authResult) {
+					$('#authResult').append(
+							' ' + field + ': ' + authResult[field] + '<br/>');
+				}
+
+				if (authResult['access_token']) {
+					// The user is signed in
+					this.authResult = authResult;
+					helper.connectServer();
+
+					// After we load the Google+ API, render the profile data from Google+.
+					gapi.client.load('plus', 'v1', this.renderProfile);
+
+				} else if (authResult['error']) {
+					// There was an error, which means the user is not signed in.
+					// As an example, you can troubleshoot by writing to the console:
+					console.log('There was an error: ' + authResult['error']);
+					$('#authResult').append('Logged out');
+					$('#authOps').hide('slow');
+					$('#gConnect').show();
+				}
+				console.log('authResult', authResult);
+			},
+
+			/**
+			 * Retrieves and renders the authenticated user's Google+ profile.
+			 * For now, keep it for displaying the page after connect/re-connect
+			 */
+			renderProfile : function() {
+				var request = gapi.client.plus.people.get({
+					'userId' : 'me'
+				});
+				request
+						.execute(function(profile) {
+							$('#profile').empty();
+							if (profile.error) {
+								$('#profile').append(profile.error);
+								return;
+							}
+							$('#profile')
+									.append(
+											$('<p><img src=\"' + profile.image.url + '\"></img></p>'));
+							$('#profile').append(
+									$('<p>Hello ' + profile.displayName
+											+ '!<br />Tagline: '
+											+ profile.tagline + '<br />About: '
+											+ profile.aboutMe + '</p>'));
+							if (profile.cover && profile.coverPhoto) {
+								$('#profile')
+										.append(
+												$('<p><img src=\"' + profile.cover.coverPhoto.url + '\"></img></p>'));
+							}
+						});
+				$('#authOps').show('slow');
+				$('#gConnect').hide();
+			},
+			/**
+			 * Calls the server endpoint to disconnect the app for the user.
+			 */
+			disconnectServer : function() {
+				// Revoke the server tokens
+				$.ajax({
+					type : 'POST',
+					url : window.location.href + 'disconnect',
+					async : false,
+					success : function(result) {
+						console.log('revoke response: ' + result);
+						$('#authOps').hide('slow');
+						
+						//$('#profile').empty();
+						//$('#visiblePeople').empty();
+						
+						$('#authResult').empty();
+						$('#vizResult').empty();
+						$('#vizChart').empty();
+						$('#slider').hide();
+						$('#saveButton').attr("disabled",
+								true);
+						
+						$('#gConnect').show();
+					},
+					error : function(e) {
+						console.log(e);
+					}
+				});
+			},
+			/**
+			 * Calls the server endpoint to connect the app for the user. The client
+			 * sends the one-time authorization code to the server and the server
+			 * exchanges the code for its own tokens to use for offline API access.
+			 * For more information, see:
+			 *   https://developers.google.com/+/web/signin/server-side-flow
+			 */
+			connectServer : function() {
+				console.log(this.authResult.code);
+				$.ajax({
+					type : 'POST',
+					url : window.location.href + 'connect?state={{ STATE }}',
+					contentType : 'application/octet-stream; charset=utf-8',
+					success : function(result) {
+						console.log(result);
+						//helper.people();
+					},
+					processData : false,
+					data : this.authResult.code
+				});
+			},
+			/**
+			 * Calls the server endpoint to get the list of people visible to this app.
+			 *
+			people : function() {
+				
+				$.ajax({
+				type: 'GET',
+				url: window.location.href + 'people',
+				contentType: 'application/octet-stream; charset=utf-8',
+				success: function(result) {
+				  helper.appendCircled(result);
+				},
+				processData: false
+				});
+				 
+			},
+
+			/**
+			 * Displays visible People retrieved from server.
+			 *
+			 * @param {Object} people A list of Google+ Person resources.
+			 *
+			appendCircled : function(people) {
+				$('#visiblePeople').empty();
+
+				$('#visiblePeople').append(
+						'Number of people visible to this app: '
+								+ people.totalItems + '<br/>');
+				for ( var personIndex in people.items) {
+					person = people.items[personIndex];
+					$('#visiblePeople').append(
+							'<img src="' + person.image.url + '">');
+				}
+			},
+			/**
+			 * Create and render a Picker object for picking user Docs.
+			 */
+			createPicker : function(oauthToken) {
+
+				//For GAPI load check
+				if (pickerApiLoaded && oauthToken) {
+
+					var picker = new google.picker.PickerBuilder()
+							.enableFeature(google.picker.Feature.NAV_HIDDEN)
+							.addView(google.picker.ViewId.FOLDERS)
+							.setOAuthToken(oauthToken)
+							.setDeveloperKey(
+									'AIzaSyCkhO5QlXxaVMmM3EqybZeC3BbFHGsxo20')
+							.setCallback(
+									function(data) {
+										var doc_id = 'nothing';
+										var doc_name = 'no name';
+										if (data[google.picker.Response.ACTION] == google.picker.Action.PICKED) {
+											// Deal with vizChart 
+											$("#slider").hide();
+											$("#vizChart").empty();
+											$('#vizResult').empty();
+											$('#createPicker').attr("disabled",
+													true);
+											$('#saveButton').attr("disabled",
+													true);
+											$('#progressBar').show();
+											
+											var doc = data[google.picker.Response.DOCUMENTS][0];
+											doc_id = doc[google.picker.Document.ID];
+											doc_name = doc[google.picker.Document.NAME];
+											helper.retrieveRevisions(doc_id,
+													doc_name);
+
+										} else {
+											$('#createPicker').attr("disabled",
+													false);
+										}
+									}).build();
+					picker.setVisible(true);
+				} else {
+					gapi.load('picker');
+					pickerApiLoaded = true;
+				}
+			},
+			/**
+			 * Calls the server endpoint to start retrieve the list of revisions visible to this app.
+			 */
+			retrieveRevisions : function(doc_id, doc_name) {
+
+				$('#vizResult').append(
+						'Viz Result for Document: ' + doc_name + '<br/>');
+
+				$.post(window.location.href + 'revisions', {
+					'doc_id' : doc_id,
+					'doc_name' : doc_name
+				}, function(result) {
+					console.log("Start Retrieving Revisions");
+					console.log(result);
+
+					$('#vizResult').append(result + ' <br/>');
+					helper.pollingTask(doc_id, doc_name, 'download');
+				});
+
+			},
+
+			/**
+			 * Calls the server endpoint to start diff the already downloaded revisions.
+			 */
+			diffRevisions : function(doc_id, doc_name) {
+
+				$('#vizResult').empty();
+				$('#vizResult').append(
+						'Diff Result for Document: ' + doc_name + '<br/>');
+
+				$.post(window.location.href + 'diffrevisions', {
+					'doc_id' : doc_id,
+					'doc_name' : doc_name
+				}, function(result) {
+					console.log("Start Differentiating Revisions");
+					console.log(result);
+
+					$('#vizResult').append(result + ' <br/>');
+					
+					//TODO will really process this sentence??
+					if (helper.pollingTask(doc_id, doc_name, 'diff')){
+						renderVisualization(doc_id, doc_name);
+					}
+				});
+
+			},
+			/**
+			 * Call the server endpoint to check the status of visualizing task
+			 */
+			pollingTask : function(doc_id, doc_name, mode) {
+				$.ajax({
+					type : 'GET',
+					url : window.location.href + 'polling?mode=' + mode
+							+ '&doc_id=' + doc_id,
+					contentType : 'application/octet-stream; charset=utf-8',
+					success : function(result) {
+						console.log("Polling Status of Task " + doc_id);
+						console.log(result);
+
+						// Deal with the Viz Log Effect
+						$('#vizResult').effect(
+								"highlight",
+								{},
+								500,
+								function() {
+									setTimeout(function() {
+										$("#effect").removeAttr("style").hide()
+												.fadeIn();
+									}, 1000);
+								});
+
+						// Deal with progressBar
+						$("#progressBar").progressbar({
+							value : parseInt(result)
+						});
+						if (mode === "download") {
+							if (result === "100") {
+
+								$('#vizResult').append('Download Done! <br/>');
+
+								// TODO should be initiated in upper level not inside polling?
+								// initiate the diff algorithm
+								helper.diffRevisions(doc_id, doc_name);
+
+								return;
+							}
+							$('#vizResult').append(
+									'Downloading ' + result + '%. <br/>');
+						} else if (mode === "diff") {
+							if (result === "100") {
+								$('#createPicker').attr("disabled", false);
+								$('#progressBar').hide();
+								$('#saveButton').attr("disabled",false);
+								$('#vizResult').append('Diff Done! <br/>');
+
+								// TODO should be initiated in upper level not inside polling?
+								// initiate the viz 
+								helper.renderVisualization(doc_id, doc_name);
+								return;
+							}
+							$('#vizResult').append(
+									'Diff-ing ' + result + '%. <br/>');
+						}
+
+						helper.pollingTask(doc_id, doc_name, mode);
+					}
+				});
+			},
+			/**
+			 * Retrieves and renders the history flow.
+			 */
+			renderVisualization : function(doc_id, doc_name) {
+				$('#vizResult').empty();
+				$('#vizChart').empty();
+				$('#slider').hide();
+				$('#vizResult').append(
+						'Viz Result for Document: ' + doc_name + '<br/>');
+
+				//TODO change ajax to post
+				$.ajax({
+							type : 'POST',
+							url : window.location.href + 'viz?doc_id=' + doc_id,
+							contentType : 'application/octet-stream; charset=utf-8',
+							success : function(result) {
+								console.log("Start Viz Revisions");
+
+								//$('#vizResult').append(result + ' <br/>');
+
+								/*
+								 ** To Prepare the SVG Convas for drawing the history flow
+								 */
+								var width = 1280, height = 1200, margin = {
+									'top' : 20,
+									'right' : 10,
+									'bottom' : 10,
+									'left' : 10
+								};
+
+								var svg = d3.select("#vizChart").append("svg")
+										.attr(
+												"width",
+												width + margin.left
+														+ margin.right)
+										.attr(
+												"height",
+												height + margin.top
+														+ margin.bottom)
+										.attr(
+												"margin-left",
+												margin.left
+														)
+										.attr(
+												"margin-top",
+												margin.top
+														);
+
+								
+								/*
+								 * Draw the history flow
+								 */
+								var dataset = $.parseJSON(result);
+								historyflow(svg, width, height, dataset);
+								
+								var num_revisions = dataset.revisions.length;
+								
+								$("#sliderBar")
+								.slider({
+									range: true,
+								    min: 1,
+								    max: num_revisions,
+								    values: [1,num_revisions],
+								    slide: function( event, ui ) {
+								    	  // revision start from 0, so we need to change the index minus one
+								    	
+								    	$( "#amount" ).val( "Rev: " + ui.values[ 0 ] + " - Rev: " + ui.values[ 1 ] );
+								    	  
+										//TODO change ajax to post
+										$.ajax({
+													type : 'POST',
+													url : window.location.href + 'viz?doc_id=' + doc_id+'&end_rev_index='+(ui.values[ 1 ]-1) +'&start_rev_index='+(ui.values[ 0 ]-1),
+													contentType : 'application/octet-stream; charset=utf-8',
+													success : function(result) {
+														console.log("Start Viz Revisions");
+
+														//$('#vizResult').append(result + ' <br/>');
+
+														/*
+														 ** To Prepare the SVG Convas for drawing the history flow
+														 */
+														var width = 1280, height = 1200, margin = {
+															'top' : 20,
+															'right' : 10,
+															'bottom' : 10,
+															'left' : 10
+														};
+														
+														$('#vizChart').fadeOut(1000,function(){
+															$('#vizChart').empty();
+															var svg = d3.select("#vizChart").append("svg")
+															.attr(
+																	"width",
+																	width + margin.left
+																			+ margin.right)
+															.attr(
+																	"height",
+																	height + margin.top
+																			+ margin.bottom)
+															.attr(
+																	"margin-left",
+																	margin.left
+																			)
+															.attr(
+																	"margin-top",
+																	margin.top
+																			);
+															/*
+															 * Draw the history flow
+															 */
+															var dataset = $.parseJSON(result);
+															historyflow(svg, width, height, dataset);
+															$('#vizChart').fadeIn();
+														});
+
+													}
+												});
+								    }
+								});
+								
+								$( "#amount" ).val( "Rev: " + $( "#sliderBar" ).slider( "values", 0 ) +
+									      " - Rev: " + $( "#sliderBar" ).slider( "values",  1) );
+								$("#slider").show();
+
+							},
+							processData : false,
+							data : this.authResult.code
+						});
+
+				$('#authOps').show('slow');
+			},
+
+			// get the segment content data
+			retrieveSegmentContent : function(doc_id, segment_id) {
+				$('#vizResult').empty();
+				$('#vizResult').append(
+						'Selected Segment #' + segment_id
+								+ ' Content is: <br/>');
+
+				$.ajax({
+					type : 'POST',
+					url : window.location.href + 'seg?doc_id=' + doc_id
+							+ '&segment_id=' + segment_id,
+					contentType : 'application/octet-stream; charset=utf-8',
+					success : function(result) {
+						console.log("Retrieved the Segment " + segment_id
+								+ " Result ");
+
+						$('#vizResult').append(result + ' <br/>');
+
+					},
+					processData : false,
+					data : this.authResult.code
+				});
+
+				// some effect
+				//$('#vizResult').show('slow');
+			},
+			
+			// save the svg object to image locally
+			saveImage : function() {
+				$('#vizResult').empty();
+				$('#vizResult').append(
+						'Save Image <br/>');
+				
+				d3.select("svg").attr("version", 1.1).attr("xmlns","http://www.w3.org/2000/svg");
+				var svg = document.getElementsByTagName('svg')[0];
+				var svg_xml = (new XMLSerializer).serializeToString(svg);
+				
+				// Submit the <FORM> to the server.
+				// The result will be an attachment file to download.
+				var form = document.getElementById("svgform");
+				form['output_format'].value = "";
+				form['data'].value = svg_xml ;
+				form.submit();
+
+			}
+		};
+	})();
+
+	/**
+	 * Perform jQuery initialization and check to ensure that you updated your
+	 * client ID.
+	 */
+	$(document)
+			.ready(
+					function() {
+						$('#disconnect').button();
+						$('#disconnect').click(helper.disconnectServer);
+						$('#createPicker').button();
+						$('#createPicker').click(createPicker);
+						$('#saveButton').button();
+						$('#saveButton').attr("disabled",
+								true);
+						$('#saveButton').click(helper.saveImage);
+						/**
+						 * Deal with progress bar
+						 */
+						$('#progressBar').progressbar({
+							value : 0
+						});
+
+						if ($('[data-clientid="YOUR_CLIENT_ID"]').length > 0) {
+							alert('This sample requires your OAuth credentials (client ID) '
+									+ 'from the Google APIs console:\n'
+									+ '    https://code.google.com/apis/console/#:access\n\n'
+									+ 'Find and replace YOUR_CLIENT_ID with your client ID and '
+									+ 'YOUR_CLIENT_SECRET with your client secret in the project sources.');
+						}
+
+					});
+
+	/**
+	 * Calls the helper method that handles the authentication flow.
+	 *
+	 * @param {Object} authResult An Object which contains the access token and
+	 *   other authentication information.
+	 */
+	function onSignInCallback(authResult) {
+		helper.onSignInCallback(authResult);
+	}
+
+	function onApiLoad() {
+		gapi.load('picker');
+		pickerApiLoaded = true;
+
+	}
+
+	function createPicker() {
+		// Deal with progressBar
+		$("#progressBar").progressbar({
+			value : 0
+		});
+		
+		helper.createPicker(helper.authResult.access_token);
+	}
+
+	// A simple rendering implementation.
+	function historyflow(svg, width, height, dataset) {
+
+		var color = d3.scale.category10(), margin = {
+			'top' : 100,
+			'right' : 10,
+			'bottom' : (height / 4),
+			'left' : 40
+		};
+		/*
+		 * Start the core visuzalization
+		 */
+		var revisions = dataset.revisions;
+		var authors = dataset.authors;
+		var segments = dataset.segments;
+		var doc_id = dataset.docId;
+		var doc_name = dataset.docName;
+
+ 		var xScale = d3.scale.ordinal().domain(d3.range(revisions.length))
+				.rangeRoundBands([ 0, width - margin.left - margin.right ], 0.5);
+  
+ 		/* How we can use time scale instead of equaling distance *
+ 		var mindate = new Date(revisions[0].time),maxdate = new Date(revisions[(revisions.length-1)].time);
+ 		//TODO pst pdt
+ 		var xScale = d3.time.scale().domain([mindate, maxdate]) 
+		.range([ 0, width - margin.left - margin.right ], 0.5);
+ 		*/
+ 
+		var yScale = d3.scale.linear().domain(
+				[ 0, d3.max(revisions, function(d) {
+					return d.revisionLength;
+				}) ]).range([ 0, height - margin.top - margin.bottom ]);
+
+		var yAxis = d3.svg.axis().scale(yScale).orient("right").ticks(10);
+		svg.append("g").attr("class", "axis").attr("transform",
+				"translate(" + (margin.left - 30) + "," + margin.top + ")")
+				.call(yAxis);
+
+
+	var legend = svg.selectAll("authorGroup").data(authors).enter().append(
+				"rect").attr("class", "segment").attr("x", xScale(0)).attr("y",
+				function(d, i) {
+					return i * 25;
+				})
+				.attr("width", xScale.rangeBand())
+				.attr("height", 20).attr(
+				"fill", function(d, i) {
+					return color(i);
+				}).attr(
+				"transform",
+				"translate(" + (margin.left )+ ","
+						+ (height - margin.bottom + 15) + ")");
+
+		var legendText = svg.selectAll("authorText").data(authors).enter()
+				.append("text").attr("x", xScale(0)+ xScale.rangeBand() + 10).attr("y", function(d, i) {
+					return i * 25;
+				}).attr("font-family", "sans-serif").attr("font-size", "16px")
+				.attr("fill", "black").text(
+						function(d) {
+							return d;
+						}).attr(
+						"transform",
+						"translate(" + (margin.left )
+								+ "," + (height - margin.bottom + 30) + ")");
+		// date
+		var dateLabel1 = svg.selectAll("dateLabel1").data(revisions).enter()
+				.append("text").attr("x", function(d, i) {
+					return xScale(i);
+				}).attr("y", function(d, i) {
+					if (i % 3 == 1)
+						return 20;
+					else if (i % 3 == 0)
+						return 40;
+					else
+						return 0;
+				}).attr("font-family", "sans-serif").attr("font-size", "14px")
+				.attr("fill", "black").html(
+						function(d) {
+							return d.time.substring(5, 10);
+						}).attr(
+						"transform",
+						"translate(" + (margin.left + 1) + ","
+								+ (margin.top - margin.top + 15) + ")");
+		// time
+		var dateLabel2 = svg.selectAll("dateLabel2").data(revisions).enter()
+				.append("text").attr("x", function(d, i) {
+					return xScale(i);
+				}).attr("y", function(d, i) {
+					if (i % 3 == 1)
+						return 20;
+					else if (i % 3 == 0)
+						return 40;
+					else
+						return 0;
+				}).attr("font-family", "sans-serif").attr("font-size", "14px")
+				.attr("fill", "black").html(
+						function(d) {
+							return d.time.substring(11, 16);
+						}).attr(
+						"transform",
+						"translate(" + (margin.left + 1) + ","
+								+ (margin.top - margin.top + 25) + ")");
+
+		//for each revision, mark the author for it above the axis
+		svg.selectAll("authorLabel").data(revisions).enter().append("rect")
+				.attr("x", function(d, i) {
+					return xScale(i);
+				}).attr("width", xScale.rangeBand()).attr("height", 20).style(
+						"fill", function(d) {
+							return color(d.authorId);
+						}).attr(
+						"transform",
+						"translate(" + margin.left + "," + (margin.top - 30)
+								+ ")");
+		;
+
+		var groups = svg.selectAll("rectGroup").data(revisions).enter().append(
+				"g").attr("class", "rectGroup").attr("transform",
+				"translate(" + margin.left + "," + margin.top + ")");
+
+		var revisionIndex = -1;
+		var accumulateSegLength = 0;
+		var displayGroups = function(groups, start, end) {
+			return groups
+					.filter(function(d, i) {
+						return i >= start && i <= end;
+					})
+					.selectAll("rect")
+					.data(function(d) {
+						if (d.segments.length != 0)
+							return d.segments;
+						else
+							return [ -1 ];
+					})
+					.enter()
+					.append("rect")
+					.attr("class", "segment")
+					.attr("x", function(d, i) {
+						if (i == 0)
+							revisionIndex++;
+						return xScale(revisionIndex);
+					})
+					.attr(
+							"y",
+							function(d, i) {
+								if (i == 0) {
+									if (d == -1)
+										return yScale(0);
+									else {
+										accumulateSegLength = segments[d].segmentLength;
+										return yScale(accumulateSegLength
+												- segments[d].segmentLength);
+									}
+								} else {
+									accumulateSegLength += segments[d].segmentLength;
+									return yScale(accumulateSegLength
+											- segments[d].segmentLength);
+								}
+							}).attr("width", xScale.rangeBand()).attr("height",
+							function(d) {
+								if (d == -1)
+									return 0;
+								else
+									return yScale(segments[d].segmentLength);
+							}).attr("fill", function(d, i) {
+						if (d != -1)
+							return color(segments[d].authorId)
+					}).on("mouseover", function(d) {
+						if (d != -1)
+							;
+						//d3.select(this).attr("title", segments[d].content);
+					}).on("click", function(d) {
+
+						helper.retrieveSegmentContent(doc_id, d);
+					});
+		}
+
+		displayGroups(groups, 0, 100);
+
+		//===============================
+		var link = [], preSegment = [];
+		for (var j = 0; j < revisions.length - 1; j++) {
+			link[j] = [];//link[j] represent the link between revision j and j+1
+			preSegment = revisions[j].segments; //revision j segments
+			newSegment = revisions[j + 1].segments; //revision j+1 segments
+			//iterate revision j+1 segments to find father segment (segmentId) or it own(-1) in the previous revision 
+			for (var k = 0; k < newSegment.length; k++) {
+				// If fatherSegmentIndex<0, it is not a child segment, either has a link to itself, or no link
+				if (segments[newSegment[k]].fatherSegmentIndex < 0) {
+					preIndex = preSegment.indexOf(newSegment[k]);
+					//preIndex = -1 means that the segment is not in the previous revision
+					if (preIndex != -1) {
+						link[j].push([ preSegment[preIndex], newSegment[k] ]);
+					} else {
+						//No link
+					}
+				} else {
+					// fatherSegmentIndex>0 it's a child segment, need to calculate the offset and position
+					preIndex = preSegment
+							.indexOf(segments[newSegment[k]].fatherSegmentIndex);
+					//If preindex != -1 means, the father is in previous revision, so link the fathter segment and child segment
+					if (preIndex != -1) {
+						link[j].push([ preSegment[preIndex], newSegment[k] ]);
+					}
+					// If preindex = -1 means, the father is not in previous revision, so link the child segment and itself in previsous version
+					else {
+						preIndex = preSegment.indexOf(newSegment[k]);
+						if (preIndex != -1) {
+							link[j]
+									.push([ preSegment[preIndex], newSegment[k] ]);
+						} else {
+							// means it has a father, but it's not in previous version, 
+							alert("link compute error" + preIndex + " "
+									+ segments[newSegment[k]]);
+							//console.log(segments[newSegment[k]]);
+						}
+					}
+				}
+			}//end of Segments  for loop
+			// If there's no link at all, put a empty link for visualize reason
+			if (link[j].length == 0) {
+				link[j].push([ -1, -1 ]);
+			}
+		}// End of Revisions For loop
+
+		var linkGroups = svg.selectAll("linkGroup").data(link).enter().append(
+				"g").attr("class", "linkGroup").attr(
+				"transform",
+				"translate(" + (margin.left + xScale.rangeBand()) + ","
+						+ margin.top + ")");
+
+		var linkRevisionIndex = -1;
+		var displayLinks = function(linkGroups, start1, end1) {
+			return linkGroups
+					.filter(function(d, i) {
+						return i >= start1 && i <= end1;
+					})
+					.selectAll("link")
+					.data(function(d) {
+						return d;
+					})
+					.enter()
+					.append("path")
+					.attr("class", "link")
+					.attr(
+							"d",
+							function(d, i) {
+								if (i == 0) {
+									linkRevisionIndex++;
+									accumulateSegLength1 = 0;
+									accumulateSegLength2 = 0;
+								}
+								// If d[1] = -1 means it has only an empty link (-1,-1)
+								if (d[1] == -1) {
+									return "";
+								} else {
+									x0 = xScale(linkRevisionIndex);
+									var tempSegments1 = revisions[linkRevisionIndex].segments;
+									var tempSegments2 = revisions[linkRevisionIndex + 1].segments;
+
+									var index1 = tempSegments1.indexOf(d[0]);
+									var index2 = tempSegments2.indexOf(d[1]);
+
+									var accumulateSegLength1 = 0, accumulateSegLength2 = 0;
+
+									for (var q = 0; q < index1; q++) {
+										accumulateSegLength1 += segments[tempSegments1[q]].segmentLength;
+									}
+									for (var q = 0; q < index2; q++) {
+										accumulateSegLength2 += segments[tempSegments2[q]].segmentLength;
+									}
+
+									if (d[1] == d[0]) {
+										y0 = yScale(accumulateSegLength1);
+									} else {
+										y0 = yScale(accumulateSegLength1
+												+ segments[d[1]].offsetInFatherSegment);
+									}
+									y1 = yScale(accumulateSegLength2);
+
+									x1 = x0 + xScale.rangeBand();
+									dy = yScale(segments[d[1]].segmentLength);
+
+									return "M " + x0 + "," + y0 + " " + x0
+											+ "," + (y0 + dy) + " " + x1 + ","
+											+ (y1 + dy) + " " + x1 + "," + y1
+											+ "Z";
+								}
+
+							}).attr("fill", function(d, i) {
+						if (d[1] != -1)
+							return color(segments[d[1]].authorId);
+					}).attr("opacity", 0.8);
+
+		}
+
+		displayLinks(linkGroups, 0, 100);
+
+	}
+</script>
+
+</html>
