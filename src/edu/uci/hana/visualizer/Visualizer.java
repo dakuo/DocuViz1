@@ -380,7 +380,7 @@ public class Visualizer {
 			// simple case, we want a user to be able to connect and disconnect
 			// without reloading the page. Thus, for demonstration, we don't
 			// implement this best practice.
-			// request.getSession().removeAttribute("state");
+			//request.getSession().removeAttribute("state");
 
 			ByteArrayOutputStream resultStream = new ByteArrayOutputStream();
 			getContent(request.getInputStream(), resultStream);
@@ -395,8 +395,9 @@ public class Visualizer {
 
 				// You can read the Google user ID in the ID token.
 				// This sample does not use the user ID.
-				GoogleIdToken idToken = tokenResponse.parseIdToken();
-				String gplusId = idToken.getPayload().getSubject();
+				//TODO this can be deleted, sample code
+				//GoogleIdToken idToken = tokenResponse.parseIdToken();
+				//String gplusId = idToken.getPayload().getSubject();
 
 				// Store the token in the session for later use.
 				request.getSession().setAttribute("token",
@@ -569,7 +570,7 @@ public class Visualizer {
 			if (tokenData == null) {
 				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 				response.getWriter().print(
-						GSON.toJson("Current user not connected."));
+						GSON.toJson("In RevisionServlet. Current user not connected."));
 				return;
 			}
 			if (request.getParameter("doc_id") == null) {
@@ -775,14 +776,6 @@ public class Visualizer {
 											"text/plain") != null
 									&& revision.getExportLinks()
 											.get("text/plain").length() > 0) {
-								/*
-								 * TODO to be deleted if the gzip works
-								 * 
-								 * HttpResponse resp = service
-								 * .getRequestFactory() .buildGetRequest( new
-								 * GenericUrl(revision .getExportLinks().get(
-								 * "text/plain"))) .execute();
-								 */
 
 								// Using GZip way to download
 								HttpRequest httpGet = service
@@ -826,7 +819,7 @@ public class Visualizer {
 							i++;
 						}
 
-						// TODO doc name or doc update time?
+						//doc id & doc name in the file
 						downloadedList.put(docId, docName);
 						FileWriter doneFW = new FileWriter(downloadedListFile,
 								true);
@@ -939,7 +932,7 @@ public class Visualizer {
 				IOException {
 			response.setContentType("application/json");
 
-			// Only fetch a list of people for connected users.
+			// Only do diff for connected users.
 			String tokenData = (String) request.getSession().getAttribute(
 					"token");
 			if (tokenData == null) {
