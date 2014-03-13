@@ -45,15 +45,12 @@
 
 <body>
 	<div id="gConnect">
-		<!--
-     	data-scope="https://www.googleapis.com/auth/plus.login email https://www.googleapis.com/auth/drive"
-        data-requestvisibleactions="http://schemas.google.com/AddActivity"
-      -->
+
 		<button class="g-signin"
 			data-scope="email https://www.googleapis.com/auth/drive"
-			data-clientId="{{ CLIENT_ID }}" data-accesstype="offline"
+			data-clientId="{{ CLIENT_ID }}" data-accesstype="online"
 			data-callback="onSignInCallback" data-theme="dark" data-width="wide"
-			data-cookiepolicy="single_host_origin"></button>
+			data-cookiepolicy="single_host_origin" data-approvalprompt="force"></button>
 	</div>
 	<div id="authOps" style="display: none">
 		<h2>Pick a Google Drive Document to see the revision history visualization</h2>
@@ -118,7 +115,7 @@
 			 */
 			onSignInCallback : function(authResult) {
 				//TODO may be deleted after deployment
-				//$('#authResult').hide();
+				$('#authResult').hide();
 
 				$('#authResult').html('Auth Result:<br/>');
 				for ( var field in authResult) {
@@ -222,7 +219,7 @@
 					contentType : 'application/octet-stream; charset=utf-8',
 					success : function(result) {
 						console.log(result);
-						//helper.people();
+						helper.people();
 					},
 					processData : false,
 					data : this.authResult.code
