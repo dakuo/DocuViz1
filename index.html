@@ -219,7 +219,8 @@
 					contentType : 'application/octet-stream; charset=utf-8',
 					success : function(result) {
 						console.log(result);
-						helper.people();
+						
+						//helper.people();
 					},
 					processData : false,
 					data : this.authResult.code
@@ -545,7 +546,10 @@
 				$('#authOps').show('slow');
 			},
 
-			// get the segment content data
+			/* 
+			 *	get the segment content data
+			 *
+			 */
 			retrieveSegmentContent : function(doc_id, segment_id) {
 				$('#vizResult').empty();
 				$('#vizResult').append(
@@ -570,6 +574,78 @@
 
 				// some effect
 				//$('#vizResult').show('slow');
+			},
+			
+			/* 
+			 *	change the segment and all its children segments' author
+			 *
+			 */
+			changeSegmentAuthor : function(doc_id, segment_id, author_id) {
+
+				$.ajax({
+					type : 'POST',
+					url : window.location.href + 'segAuthor?doc_id=' + doc_id
+							+ '&segment_id=' + segment_id + '&author_id=' + author_id,
+					contentType : 'application/octet-stream; charset=utf-8',
+					success : function(result) {
+
+						$('#vizResult').append(result + ' <br/>');
+						
+
+
+					},
+					processData : false,
+					data : this.authResult.code
+				});
+				$()
+				// refresh the chart
+				$.ajax({
+							type : 'POST',
+							url : window.location.href + 'viz?doc_id=' + doc_id,
+							contentType : 'application/octet-stream; charset=utf-8',
+							success : function(result) {
+								console.log("Start Redraw Visualization");
+
+								/*
+								 ** To Prepare the SVG Convas for drawing the history flow
+								 */
+								var width = 1280, height = 1200, margin = {
+									'top' : 20,
+									'right' : 10,
+									'bottom' : 10,
+									'left' : 10
+								};
+								
+								$('#vizChart').fadeOut(1000,function(){
+									$('#vizChart').empty();
+									var svg = d3.select("#vizChart").append("svg")
+									.attr(
+											"width",
+											width + margin.left
+													+ margin.right)
+									.attr(
+											"height",
+											height + margin.top
+													+ margin.bottom)
+									.attr(
+											"margin-left",
+											margin.left
+													)
+									.attr(
+											"margin-top",
+											margin.top
+													);
+									/*
+									 * Draw the history flow
+									 */
+									var dataset = $.parseJSON(result);
+									historyflow(svg, width, height, dataset);
+									$('#vizChart').fadeIn();
+								});
+
+							}
+				});
+
 			},
 			
 			// save the svg object to image locally
@@ -764,7 +840,6 @@
 						"transform",
 						"translate(" + margin.left + "," + (margin.top - 30)
 								+ ")");
-		;
 
 		var groups = svg.selectAll("rectGroup").data(revisions).enter().append(
 				"g").attr("class", "rectGroup").attr("transform",
@@ -817,13 +892,9 @@
 							}).attr("fill", function(d, i) {
 						if (d != -1)
 							return color(segments[d].authorId)
-					}).on("mouseover", function(d) {
-						if (d != -1)
-							;
-						//d3.select(this).attr("title", segments[d].content);
 					}).on("click", function(d) {
-
-						helper.retrieveSegmentContent(doc_id, d);
+						helper.changeSegmentAuthor(doc_id, d, 0);
+						//helper.retrieveSegmentContent(doc_id, d);
 					});
 		}
 
