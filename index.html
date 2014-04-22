@@ -102,6 +102,14 @@
 		<h2>Authentication Logs</h2>
 		<pre id="authResult"></pre>
 		-->
+		<!--  Hidden Dialog FORM to submit the changing author request -->
+		<div id="dialog_form" title="Change Author">
+		<form>
+			<select id="author_list"></select>
+			<input type="hidden" id="change_doc_id" name="doc_id" value="">
+			<input type="hidden" id="change_seg_id" name="seg_id" value="">
+		</form>
+		</div>
 	</div>
 	</body>
 <script type="text/javascript">
@@ -290,6 +298,7 @@
 											$('#saveButton').attr("disabled",
 													true);
 											$('#progressBar').show();
+											$("#author_list").empty();
 											
 											var doc = data[google.picker.Response.DOCUMENTS][0];
 											doc_id = doc[google.picker.Document.ID];
@@ -346,7 +355,7 @@
 					console.log(result);
 
 					$('#vizResult').append(result + ' <br/>');
-					
+
 					//TODO will really process this sentence??
 					if (helper.pollingTask(doc_id, doc_name, 'diff')){
 						renderVisualization(doc_id, doc_name);
@@ -645,7 +654,7 @@
 													}
 								});
 
-							
+
 				});
 
 			},
@@ -692,7 +701,31 @@
 						$('#progressBar').progressbar({
 							value : 0
 						});
-
+						$( "#dialog_form" ).dialog({
+						      autoOpen: false,
+						      height: 300,
+						      width: 500,
+						      modal: true,
+						      buttons: {
+						    	"Content": function() {
+							        	var doc_id = $('#change_doc_id').val();
+							        	var seg_id = $('#change_seg_id').val();
+							        	helper.retrieveSegmentContent(doc_id, seg_id);
+							        	$( this ).dialog( "close" );
+							        },
+						        "Change Author": function() {
+						        	var doc_id = $('#change_doc_id').val();
+						        	var seg_id = $('#change_seg_id').val();
+						        	var author_id = $('#author_list').val();
+						        	helper.changeSegmentAuthor(doc_id, seg_id, author_id);
+						        	$( this ).dialog( "close" );
+						        },
+						        Cancel: function() {
+						          $( this ).dialog( "close" );
+						        }
+						      }
+						    });
+						
 						if ($('[data-clientid="YOUR_CLIENT_ID"]').length > 0) {
 							alert('This sample requires your OAuth credentials (client ID) '
 									+ 'from the Google APIs console:\n'
@@ -745,6 +778,12 @@
 		var segments = dataset.segments;
 		var doc_id = dataset.docId;
 		var doc_name = dataset.docName;
+		
+
+		var authorOptions = d3.select("#author_list")
+		.selectAll("option").data(authors).enter().append("option")
+	    .attr("value", function(d,i){ return i; }) 
+	    .text(function(d){ return d; })
 
  		var xScale = d3.scale.ordinal().domain(d3.range(revisions.length))
 				.rangeRoundBands([ 0, width - margin.left - margin.right ], 0.5);
@@ -767,7 +806,7 @@
 				.call(yAxis);
 
 
-	var legend = svg.selectAll("authorGroup").data(authors).enter().append(
+		var legend = svg.selectAll("authorGroup").data(authors).enter().append(
 				"rect").attr("class", "segment").attr("x", xScale(0)).attr("y",
 				function(d, i) {
 					return i * 25;
@@ -784,7 +823,8 @@
 		var legendText = svg.selectAll("authorText").data(authors).enter()
 				.append("text").attr("x", xScale(0)+ xScale.rangeBand() + 10).attr("y", function(d, i) {
 					return i * 25;
-				}).attr("font-family", "sans-serif").attr("font-size", "16px")
+				})
+				.attr("font-family", "sans-serif").attr("font-size", "16px")
 				.attr("fill", "black").text(
 						function(d) {
 							return d;
@@ -895,8 +935,10 @@
 						if (d != -1)
 							return color(segments[d].authorId)
 					}).on("click", function(d) {
-						helper.changeSegmentAuthor(doc_id, d, 0);
-						//helper.retrieveSegmentContent(doc_id, d);
+						$('#change_doc_id').val(doc_id);
+						$('#change_seg_id').val(d);
+						$( "#dialog_form" ).dialog( "open" );
+						
 					});
 		}
 
