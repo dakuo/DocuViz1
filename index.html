@@ -53,6 +53,19 @@
 			data-cookiepolicy="single_host_origin" data-approvalprompt="force"></button>
 	</div>
 	<div id="authOps" style="display: none">
+	
+		<div id="progressBar" style="display:none"></div>
+		
+		<div id="slider" style="display:none">
+		<p id = "sliderLable">
+			<label for="amount">Displaying Revisions:</label> <input type="text"
+				id="amount" style="border: 0; color: #f6931f; font-weight: bold;"></input>
+		</p>
+		<div id="sliderBar" style="margin-left:10px; margin-right:10px;"></div>
+		</div>
+		
+		<pre id="vizChart"></pre>
+		
 		<h2>Pick a Google Drive Document to see the revision history visualization</h2>
 		<p></p>
 
@@ -75,18 +88,7 @@
 			would change using your server-side templating system.</p>
 		<div id="visiblePeople"></div -->
 		
-		<div id="slider" style="display:none">
-		<p id = "sliderLable">
-			<label for="amount">Displaying Revisions:</label> <input type="text"
-				id="amount" style="border: 0; color: #f6931f; font-weight: bold;"></input>
-		</p>
-		<div id="sliderBar" style="margin-left:10px; margin-right:10px;"></div>
-		</div>
-		
-		<pre id="vizChart"></pre>
-		
 		<h2>Visualization Logs</h2>
-		<div id="progressBar" style="display:none"></div>
 		<pre id="vizResult"></pre>
 
 		<!-- Hidden <FORM> to submit the SVG data to the server, which will convert it to SVG/PDF/PNG downloadable file.
@@ -590,21 +592,12 @@
 					success : function(result) {
 
 						$('#vizResult').append(result + ' <br/>');
-						
-
 
 					},
 					processData : false,
 					data : this.authResult.code
 				});
-				$()
-				// refresh the chart
-				$.ajax({
-							type : 'POST',
-							url : window.location.href + 'viz?doc_id=' + doc_id,
-							contentType : 'application/octet-stream; charset=utf-8',
-							success : function(result) {
-								console.log("Start Redraw Visualization");
+
 
 								/*
 								 ** To Prepare the SVG Convas for drawing the history flow
@@ -638,12 +631,21 @@
 									/*
 									 * Draw the history flow
 									 */
+									// refresh the chart
+									$.ajax({
+													type : 'POST',
+													url : window.location.href + 'viz?doc_id=' + doc_id,
+													contentType : 'application/octet-stream; charset=utf-8',
+													success : function(result) {
+														console.log("Start Redraw Visualization");
+														
 									var dataset = $.parseJSON(result);
 									historyflow(svg, width, height, dataset);
 									$('#vizChart').fadeIn();
+													}
 								});
 
-							}
+							
 				});
 
 			},

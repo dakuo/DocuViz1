@@ -176,7 +176,7 @@ public class Visualizer {
 			diffedList = new HashMap<String, String>();
 
 			BufferedReader br = new BufferedReader(new FileReader(
-					downloadingListFile));
+					"downloadingList.txt"));
 			String line = br.readLine();
 			while (line != null) {
 				String[] docListPair = line.split(":", 2);
@@ -560,7 +560,7 @@ public class Visualizer {
 	}
 
 	/**
-	 * Start downloading revisions with given doc_id.
+	 * 
 	 * The start-point for the visualization chain.
 	 */
 	public static class RevisionsServlet extends HttpServlet {
@@ -644,6 +644,87 @@ public class Visualizer {
 						*/
 						diffedList.remove(request.getParameter("doc_id"));
 						downloadedList.remove(request.getParameter("doc_id"));
+						
+						BufferedReader br = null;
+						BufferedWriter bw = null;
+						BufferedReader br1 = null;
+						BufferedWriter bw1 = null;
+						try{
+						/**
+						 * read the diffedListFile file, modify it and save it back
+						 */
+						br = new BufferedReader(new FileReader(diffedListFile));
+						bw = new BufferedWriter(new FileWriter("diffedListFile.tmp"));
+						
+						String line = null;
+						while ((line = br.readLine()) != null) {
+							
+							if(!line.startsWith(request.getParameter("doc_id"))){
+								
+								bw.write(line);
+								bw.newLine();
+							}
+							else{
+
+							}
+						}
+						/**
+						 * read the downloadedList file, modify it and save it back
+						 */
+						br1 = new BufferedReader(new FileReader(downloadedListFile));
+						bw1 = new BufferedWriter(new FileWriter("downloadedListFile.tmp"));
+						
+						line = null;
+						while ((line = br1.readLine()) != null) {
+							
+							if(!line.startsWith(request.getParameter("doc_id"))){
+								
+								bw1.write(line);
+								bw1.newLine();
+							}
+							else{
+
+							}
+						}
+						
+						}catch (Exception e){
+							response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+							response.getWriter().print("Updateing DiffedList File Exception"); 
+							return;
+						} finally{
+							try{
+								if(br != null)
+									br.close();
+								if(br1 != null)
+									br1.close();
+							}catch (IOException e){
+								response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+								response.getWriter().print("Updateing DiffedList File Exception");
+								return;
+							}
+							try{
+								if(bw != null)
+									bw.close();
+								if(bw1 != null)
+									bw1.close();
+							}catch (IOException e){
+								response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+								response.getWriter().print("Updateing DiffedList File Exception");
+								return;
+							}
+						}
+						// once everything is complete, delete old files
+						
+						diffedListFile.delete();
+						// And rename tmp file's name to old file name
+						File newFile = new File("diffedListFile.tmp");
+						newFile.renameTo(diffedListFile);
+						
+						downloadedListFile.delete();
+						// And rename tmp file's name to old file name
+						newFile = new File("downloadedListFile.tmp");
+						newFile.renameTo(downloadedListFile);
+						
 						// Initiate a new list request and download thread running in background
 						initiateListRevisionsRequest(request, response, tokenData);
 					}
@@ -1193,7 +1274,7 @@ public class Visualizer {
 							
 							FileWriter doneFW = new FileWriter(diffedListFile,
 									true);
-							doneFW.write(docId + ":" + oldRevision.getTime()
+							doneFW.write(docId + ":" + updateTime
 									+ System.getProperty("line.separator"));
 							doneFW.close();
 
@@ -1752,8 +1833,7 @@ public class Visualizer {
 			BufferedWriter bw = null;
 			try{
 			/**
-			 * Efficient way to do a file read, maybe should be adopted at all
-			 * file read points
+			 * read the historyflow.json file, modify it and save it back
 			 */
 			br = new BufferedReader(new FileReader(listFileDir
 					+ "/historyflow.json"));
