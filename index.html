@@ -103,7 +103,7 @@
 		<pre id="authResult"></pre>
 		-->
 		<!--  Hidden Dialog FORM to submit the changing author request -->
-		<div id="dialog_form" title="Change Author">
+		<div id="dialog_form" title="Segment Function">
 		<form>
 			<select id="author_list"></select>
 			<input type="hidden" id="change_doc_id" name="doc_id" value="">
@@ -707,7 +707,7 @@
 						      width: 500,
 						      modal: true,
 						      buttons: {
-						    	"Content": function() {
+						    	"Show Content": function() {
 							        	var doc_id = $('#change_doc_id').val();
 							        	var seg_id = $('#change_seg_id').val();
 							        	helper.retrieveSegmentContent(doc_id, seg_id);
