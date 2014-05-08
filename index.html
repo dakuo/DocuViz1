@@ -953,8 +953,7 @@
  		
 	    var xScale = d3.scale.ordinal().domain(d3.range(revisions.length))
 				.rangeRoundBands([ 0, width - margin.left - margin.right ], 0.5);
-		
-	    /*
+	    
 		// date
 		var dateLabel1 = svg.selectAll("dateLabel1").data(revisions).enter()
 				.append("text").attr("x", function(d, i) {
@@ -990,17 +989,17 @@
 						function(d) {
 							return d.time.substring(11, 16);
 						}).attr(
-						"transform",
+						"transform",function(d,i){
 						"translate(" + (margin.left + 1) + "," + (margin.top - margin.top + 25) + ")");
 	/*
 	var xAxis = d3.svg.axis()
-    .scale(xScale).orient("top");;
+    .scale(xScale).orient("top");
 	
 	svg.append("g")
     .attr("class", "x axis")
     .attr("transform", "translate(" + (margin.left + 1) + "," + (margin.top -35 ) + ")")
     .call(xAxis)
-    .selectAll("text")  
+    .selectAll("text") 
         .style("text-anchor", "start")
         .attr("dx", ".8em")
         .attr("dy", "-.15em")
