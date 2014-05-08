@@ -892,7 +892,7 @@
 	function historyflow(svg, width, height, dataset, timescale_flag) {
 
 		var color = d3.scale.category10(), margin = {
-			'top' : 100,
+			'top' : 110,
 			'right' : 20,
 			'bottom' : (height / 4),
 			'left' : 60
@@ -953,72 +953,66 @@
  		
 	    var xScale = d3.scale.ordinal().domain(d3.range(revisions.length))
 				.rangeRoundBands([ 0, width - margin.left - margin.right ], 0.5);
-	    
-		// date
-		var dateLabel1 = svg.selectAll("dateLabel1").data(revisions).enter()
-				.append("text").attr("x", function(d, i) {
-					return xScale(i);
-				}).attr("y", function(d, i) {
-					if (i % 3 == 1)
-						return 20;
-					else if (i % 3 == 0)
-						return 40;
-					else
-						return 0;
-				}).attr("font-family", "sans-serif").attr("font-size", "14px")
-				.attr("fill", "black").html(
-						function(d) {
-							return d.time.substring(5, 10);
-						}).attr(
-						"transform",
-						"translate(" + (margin.left + 1) + ","
-								+ (margin.top - margin.top + 15) + ")");
+
 		// time
 		var dateLabel2 = svg.selectAll("dateLabel2").data(revisions).enter()
 				.append("text").attr("x", function(d, i) {
-					return xScale(i);
+					return 0;
 				}).attr("y", function(d, i) {
-					if (i % 3 == 1)
-						return 20;
-					else if (i % 3 == 0)
-						return 40;
-					else
-						return 0;
+					return xScale(i);
 				}).attr("font-family", "sans-serif").attr("font-size", "14px")
 				.attr("fill", "black").html(
 						function(d) {
-							return d.time.substring(11, 16);
+							return d.time.substring(5, 10) + " " + d.time.substring(11, 16);
 						}).attr(
-						"transform",function(d,i){
-						"translate(" + (margin.left + 1) + "," + (margin.top - margin.top + 25) + ")");
-	/*
-	var xAxis = d3.svg.axis()
-    .scale(xScale).orient("top");
-	
-	svg.append("g")
-    .attr("class", "x axis")
-    .attr("transform", "translate(" + (margin.left + 1) + "," + (margin.top -35 ) + ")")
-    .call(xAxis)
-    .selectAll("text") 
-        .style("text-anchor", "start")
-        .attr("dx", ".8em")
-        .attr("dy", "-.15em")
-        .attr("transform", function(d) {
-            return "rotate(-75)" 
-            });
-	*/
-		//for each revision, mark the author for it above the axis
-		svg.selectAll("authorLabel").data(revisions).enter().append("rect")
-				.attr("x", function(d, i) {
-					return xScale(i);
-				}).attr("width", xScale.rangeBand()).attr("height", 20).style(
-						"fill", function(d) {
-							return color(d.authorId);
-						}).attr(
-						"transform",
-						"translate(" + margin.left + "," + (margin.top - 30)
-								+ ")");
+						"transform","translate(" + (margin.left + 15) + "," + (margin.top-30) + ") rotate(-90)");
 
+		
+		//author label TODO loop too much, super not efficient
+		var max_author = 1; 
+		for(var i=0; i< revisions.length; i++){
+			if ( revisions[i].authorId instanceof Array) {
+				if(max_author < revisions[i].authorId.length){
+					max_author = revisions[i].authorId.length;
+				}
+				else{
+					
+				}
+			}
+			else{
+				
+			}
+		}
+		for(var i=0; i< max_author; i++){
+			svg.selectAll("authorLabel_"+i).data(revisions).enter().append("rect")
+			.attr("x", function(d, i) {
+				return xScale(i);
+			})
+			.attr("y", 11*i)
+			.attr("width", xScale.rangeBand()).attr("height", 10).style(
+			"fill", function(d) {
+			if(i==0){
+			 if ( d.authorId instanceof Array) {
+				return color(d.authorId[i]);
+			} else {
+				return color(d.authorId);
+			}
+			}
+			else{
+			if ( d.authorId instanceof Array && i< d.authorId.length) {
+			return color(d.authorId[i]);
+			} else {
+			return d3.rgb(255,255,255)
+			}
+			}
+			})
+			.attr(
+			"transform",
+			"translate(" + margin.left + "," + (margin.top - 25)
+			+ ")");
+		}
+		
+		// segment rectangles
 		var groups = svg.selectAll("rectGroup").data(revisions).enter().append(
 				"g").attr("class", "rectGroup").attr("transform",
 				"translate(" + margin.left + "," + margin.top + ")");
@@ -1210,46 +1204,64 @@
  		
  		var barWidth = 5;
  		
- 	// date
-		var dateLabel1 = svg.selectAll("dateLabel1").data(revisions).enter()
-				.append("text").attr("x", function(d, i) {
-					return xScale(new Date(d.time));
-				}).attr("y", function(d, i) {
-					if (i % 3 == 1)
-						return 20;
-					else if (i % 3 == 0)
-						return 40;
-					else
-						return 0;
-				}).attr("font-family", "sans-serif").attr("font-size", "14px")
-				.attr("fill", "black").html(
-						function(d) {
-							return d.time.substring(5, 10);
-						}).attr(
-						"transform",
-						"translate(" + (margin.left + 1) + ","
-								+ (margin.top - margin.top + 15) + ")");
 		// time
 		var dateLabel2 = svg.selectAll("dateLabel2").data(revisions).enter()
 				.append("text").attr("x", function(d, i) {
-					return xScale(new Date(d.time));
+					return 0;
 				}).attr("y", function(d, i) {
-					if (i % 3 == 1)
-						return 20;
-					else if (i % 3 == 0)
-						return 40;
-					else
-						return 0;
+					return xScale(new Date(d.time));
 				}).attr("font-family", "sans-serif").attr("font-size", "14px")
 				.attr("fill", "black").html(
 						function(d) {
-							return d.time.substring(11, 16);
+							return d.time.substring(5, 10) + " " + d.time.substring(11, 16);
 						}).attr(
-						"transform",
-						"translate(" + (margin.left + 1) + ","
-								+ (margin.top - margin.top + 25) + ")");
+						"transform","translate(" + (margin.left + 10) + "," + (margin.top-30) + ") rotate(-90)");
 
-		//author label
+		//author label TODO super un-efficient loop
+		var max_author = 1; 
+		for(var i=0; i< revisions.length; i++){
+			if ( revisions[i].authorId instanceof Array) {
+				if(max_author < revisions[i].authorId.length){
+					max_author = revisions[i].authorId.length;
+				}
+				else{
+					
+				}
+			}
+			else{
+				
+			}
+		}
+		for(var i=0; i< max_author; i++){
+			svg.selectAll("authorLabel_"+i).data(revisions).enter().append("rect")
+			.attr("x", function(d, i) {
+				return xScale(new Date(d.time));
+			})
+			.attr("y", 11*i)
+			.attr("width", barWidth).attr("height", 10).style(
+			"fill", function(d) {
+			if(i==0){
+			 if ( d.authorId instanceof Array) {
+				return color(d.authorId[i]);
+			} else {
+				return color(d.authorId);
+			}
+			}
+			else{
+			if ( d.authorId instanceof Array && i< d.authorId.length) {
+			return color(d.authorId[i]);
+			} else {
+			return d3.rgb(255,255,255)
+			}
+			}
+			})
+			.attr(
+			"transform",
+			"translate(" + margin.left + "," + (margin.top - 25)
+			+ ")");
+			}
+
+		
 		svg.selectAll("authorLabel").data(revisions).enter().append("rect")
 				.attr("x", function(d, i) {
 					return xScale(new Date(d.time));
