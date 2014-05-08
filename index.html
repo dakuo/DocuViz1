@@ -62,7 +62,17 @@
 				id="amount" style="border: 0; color: #f6931f; font-weight: bold;"></input>
 		</p>
 		<div id="sliderBar" style="margin-left:10px; margin-right:10px;"></div>
+		
+				<form>
+		<div id="radio">
+			<input type="radio" id="timescale" name="radio" value="timescale"><label for="timescale">Time Scaled</label>
+			<input type="radio" id="equaldistance" name="radio" value="equaldistance" checked="checked"><label for="equaldistance">Equal Distance</label>
 		</div>
+		</form>
+		
+		</div>
+				
+
 		
 		<pre id="vizChart"></pre>
 		
@@ -90,6 +100,7 @@
 		
 		<h2>Visualization Logs</h2>
 		<pre id="vizResult"></pre>
+
 
 		<!-- Hidden <FORM> to submit the SVG data to the server, which will convert it to SVG/PDF/PNG downloadable file.
      The form is populated and submitted by the JavaScript below. -->
@@ -129,8 +140,8 @@
 
 				$('#authResult').html('Auth Result:<br/>');
 				for ( var field in authResult) {
-					$('#authResult').append(
-							' ' + field + ': ' + authResult[field] + '<br/>');
+					//not work with chrome, but doesn't matter, just debug
+					//$('#authResult').append(' ' + field + ': ' + authResult[field] + '<br/>');
 				}
 
 				if (authResult['access_token']) {
@@ -434,7 +445,8 @@
 				$('#slider').hide();
 				$('#vizResult').append(
 						'Viz Result for Document: ' + doc_name + '<br/>');
-
+				$('#change_doc_id').val(doc_id);
+				
 				//TODO change ajax to post
 				$.ajax({
 							type : 'POST',
@@ -536,7 +548,12 @@
 															 * Draw the history flow
 															 */
 															var dataset = $.parseJSON(result);
-															historyflow(svg, width, height, dataset);
+															var timescale_flag = $('input[name=radio]:checked').val();
+														    
+														    if(timescale_flag=="timescale")
+																historyflow(svg, width, height, dataset, true);
+														    else
+														    	historyflow(svg, width, height, dataset, false);
 															$('#vizChart').fadeIn();
 														});
 
@@ -608,18 +625,19 @@
 				});
 
 
-								/*
-								 ** To Prepare the SVG Convas for drawing the history flow
-								 */
-								var width = 1280, height = 1200, margin = {
-									'top' : 20,
-									'right' : 10,
-									'bottom' : 10,
-									'left' : 10
-								};
+								
 								
 								$('#vizChart').fadeOut(1000,function(){
 									$('#vizChart').empty();
+									/*
+									 ** To Prepare the SVG Convas for drawing the history flow
+									 */
+									var width = 1280, height = 1200, margin = {
+										'top' : 20,
+										'right' : 10,
+										'bottom' : 10,
+										'left' : 10
+									};
 									var svg = d3.select("#vizChart").append("svg")
 									.attr(
 											"width",
@@ -687,6 +705,114 @@
 	$(document)
 			.ready(
 					function() {
+						$('#radio').buttonset();
+						$('input[name=radio]').click(function() {
+						    var value = $('input[name=radio]:checked').val();
+						    
+						    if(value=="timescale")
+						    {
+						    	$('#vizChart').fadeOut(1000,function(){
+						    		var doc_id = $('#change_doc_id').val();
+						    		
+									$('#vizChart').empty();
+									/*
+									 ** To Prepare the SVG Convas for drawing the history flow
+									 */
+									var width = 1280, height = 1200, margin = {
+										'top' : 20,
+										'right' : 10,
+										'bottom' : 10,
+										'left' : 10
+									};
+									var svg = d3.select("#vizChart").append("svg")
+									.attr(
+											"width",
+											width + margin.left
+													+ margin.right)
+									.attr(
+											"height",
+											height + margin.top
+													+ margin.bottom)
+									.attr(
+											"margin-left",
+											margin.left
+													)
+									.attr(
+											"margin-top",
+											margin.top
+													);
+									/*
+									 * Draw the history flow
+									 */
+									// refresh the chart
+									$.ajax({
+													type : 'POST',
+													url : window.location.href + 'viz?doc_id=' + doc_id,
+													contentType : 'application/octet-stream; charset=utf-8',
+													success : function(result) {
+														console.log("Start Redraw Visualization");
+														
+									var dataset = $.parseJSON(result);
+									historyflow(svg, width, height, dataset, true);
+									$('#vizChart').fadeIn();
+													}
+								});
+
+
+				});
+						    }
+						    else{
+						    	$('#vizChart').fadeOut(1000,function(){
+									$('#vizChart').empty();
+									var doc_id = $('#change_doc_id').val();
+									/*
+									 ** To Prepare the SVG Convas for drawing the history flow
+									 */
+									var width = 1280, height = 1200, margin = {
+										'top' : 20,
+										'right' : 10,
+										'bottom' : 10,
+										'left' : 10
+									};
+									var svg = d3.select("#vizChart").append("svg")
+									.attr(
+											"width",
+											width + margin.left
+													+ margin.right)
+									.attr(
+											"height",
+											height + margin.top
+													+ margin.bottom)
+									.attr(
+											"margin-left",
+											margin.left
+													)
+									.attr(
+											"margin-top",
+											margin.top
+													);
+									/*
+									 * Draw the history flow
+									 */
+									// refresh the chart
+									$.ajax({
+													type : 'POST',
+													url : window.location.href + 'viz?doc_id=' + doc_id,
+													contentType : 'application/octet-stream; charset=utf-8',
+													success : function(result) {
+														console.log("Start Redraw Visualization");
+														
+									var dataset = $.parseJSON(result);
+									historyflow(svg, width, height, dataset);
+									$('#vizChart').fadeIn();
+													}
+								});
+
+
+				});
+						    }
+						});
+						
 						$('#disconnect').button();
 						$('#disconnect').click(helper.disconnectServer);
 						$('#createPicker').button();
@@ -695,6 +821,7 @@
 						$('#saveButton').attr("disabled",
 								true);
 						$('#saveButton').click(helper.saveImage);
+						
 						/**
 						 * Deal with progress bar
 						 */
@@ -762,13 +889,13 @@
 	}
 
 	// A simple rendering implementation.
-	function historyflow(svg, width, height, dataset) {
+	function historyflow(svg, width, height, dataset, timescale_flag) {
 
 		var color = d3.scale.category10(), margin = {
 			'top' : 100,
-			'right' : 10,
+			'right' : 20,
 			'bottom' : (height / 4),
-			'left' : 40
+			'left' : 60
 		};
 		/*
 		 * Start the core visuzalization
@@ -778,60 +905,56 @@
 		var segments = dataset.segments;
 		var doc_id = dataset.docId;
 		var doc_name = dataset.docName;
-		
+	 	timescale_flag = typeof timescale_flag !== 'undefined' ? timescale_flag : false;
 
 		var authorOptions = d3.select("#author_list")
 		.selectAll("option").data(authors).enter().append("option")
 	    .attr("value", function(d,i){ return i; }) 
 	    .text(function(d){ return d; })
 
- 		var xScale = d3.scale.ordinal().domain(d3.range(revisions.length))
-				.rangeRoundBands([ 0, width - margin.left - margin.right ], 0.5);
-  
- 		/* How we can use time scale instead of equaling distance *
- 		var mindate = new Date(revisions[0].time),maxdate = new Date(revisions[(revisions.length-1)].time);
- 		//TODO pst pdt
- 		var xScale = d3.time.scale().domain([mindate, maxdate]) 
-		.range([ 0, width - margin.left - margin.right ], 0.5);
- 		*/
- 
-		var yScale = d3.scale.linear().domain(
+	    var yScale = d3.scale.linear().domain(
 				[ 0, d3.max(revisions, function(d) {
 					return d.revisionLength;
 				}) ]).range([ 0, height - margin.top - margin.bottom ]);
 
 		var yAxis = d3.svg.axis().scale(yScale).orient("right").ticks(10);
 		svg.append("g").attr("class", "axis").attr("transform",
-				"translate(" + (margin.left - 30) + "," + margin.top + ")")
+				"translate(" + (margin.left - 55) + "," + margin.top + ")")
 				.call(yAxis);
-
-
+		
 		var legend = svg.selectAll("authorGroup").data(authors).enter().append(
-				"rect").attr("class", "segment").attr("x", xScale(0)).attr("y",
-				function(d, i) {
-					return i * 25;
-				})
-				.attr("width", xScale.rangeBand())
-				.attr("height", 20).attr(
-				"fill", function(d, i) {
-					return color(i);
+		"rect").attr("class", "segment").attr("x", 0).attr("y",
+		function(d, i) {
+			return i * 25;
+		})
+		.attr("width", 80)
+		.attr("height", 20).attr(
+		"fill", function(d, i) {
+			return color(i);
+		}).attr(
+		"transform",
+		"translate(" + (margin.left )+ ","
+				+ (height - margin.bottom + 15) + ")");
+
+	var legendText = svg.selectAll("authorText").data(authors).enter()
+		.append("text").attr("x", 0+ 80 + 10).attr("y", function(d, i) {
+			return i * 25;
+		})
+		.attr("font-family", "sans-serif").attr("font-size", "16px")
+		.attr("fill", "black").text(
+				function(d) {
+					return d;
 				}).attr(
 				"transform",
-				"translate(" + (margin.left )+ ","
-						+ (height - margin.bottom + 15) + ")");
-
-		var legendText = svg.selectAll("authorText").data(authors).enter()
-				.append("text").attr("x", xScale(0)+ xScale.rangeBand() + 10).attr("y", function(d, i) {
-					return i * 25;
-				})
-				.attr("font-family", "sans-serif").attr("font-size", "16px")
-				.attr("fill", "black").text(
-						function(d) {
-							return d;
-						}).attr(
-						"transform",
-						"translate(" + (margin.left )
-								+ "," + (height - margin.bottom + 30) + ")");
+				"translate(" + (margin.left )
+						+ "," + (height - margin.bottom + 30) + ")");
+						
+    if(timescale_flag==false){
+ 		
+	    var xScale = d3.scale.ordinal().domain(d3.range(revisions.length))
+				.rangeRoundBands([ 0, width - margin.left - margin.right ], 0.5);
+		
+	    /*
 		// date
 		var dateLabel1 = svg.selectAll("dateLabel1").data(revisions).enter()
 				.append("text").attr("x", function(d, i) {
@@ -868,9 +991,23 @@
 							return d.time.substring(11, 16);
 						}).attr(
 						"transform",
-						"translate(" + (margin.left + 1) + ","
-								+ (margin.top - margin.top + 25) + ")");
-
+						"translate(" + (margin.left + 1) + "," + (margin.top - margin.top + 25) + ")");
+	/*
+	var xAxis = d3.svg.axis()
+    .scale(xScale).orient("top");;
+	
+	svg.append("g")
+    .attr("class", "x axis")
+    .attr("transform", "translate(" + (margin.left + 1) + "," + (margin.top -35 ) + ")")
+    .call(xAxis)
+    .selectAll("text")  
+        .style("text-anchor", "start")
+        .attr("dx", ".8em")
+        .attr("dy", "-.15em")
+        .attr("transform", function(d) {
+            return "rotate(-75)" 
+            });
+	*/
 		//for each revision, mark the author for it above the axis
 		svg.selectAll("authorLabel").data(revisions).enter().append("rect")
 				.attr("x", function(d, i) {
@@ -1062,7 +1199,251 @@
 		}
 
 		displayLinks(linkGroups, 0, 100);
+    }
+	/* generate timescale historyflow instead of equaling distance */
+    else{
+		
+ 		var mindate = new Date(revisions[0].time),maxdate = new Date(revisions[(revisions.length-1)].time);
+ 		//TODO pst pdt
+ 		var xScale = d3.time.scale().domain([mindate, maxdate]) 
+		.range([ 0, width - margin.left - margin.right ]);
+ 		//xScale.ticks(d3.time.minute, 15);
+ 		
+ 		var barWidth = 5;
+ 		
+ 	// date
+		var dateLabel1 = svg.selectAll("dateLabel1").data(revisions).enter()
+				.append("text").attr("x", function(d, i) {
+					return xScale(new Date(d.time));
+				}).attr("y", function(d, i) {
+					if (i % 3 == 1)
+						return 20;
+					else if (i % 3 == 0)
+						return 40;
+					else
+						return 0;
+				}).attr("font-family", "sans-serif").attr("font-size", "14px")
+				.attr("fill", "black").html(
+						function(d) {
+							return d.time.substring(5, 10);
+						}).attr(
+						"transform",
+						"translate(" + (margin.left + 1) + ","
+								+ (margin.top - margin.top + 15) + ")");
+		// time
+		var dateLabel2 = svg.selectAll("dateLabel2").data(revisions).enter()
+				.append("text").attr("x", function(d, i) {
+					return xScale(new Date(d.time));
+				}).attr("y", function(d, i) {
+					if (i % 3 == 1)
+						return 20;
+					else if (i % 3 == 0)
+						return 40;
+					else
+						return 0;
+				}).attr("font-family", "sans-serif").attr("font-size", "14px")
+				.attr("fill", "black").html(
+						function(d) {
+							return d.time.substring(11, 16);
+						}).attr(
+						"transform",
+						"translate(" + (margin.left + 1) + ","
+								+ (margin.top - margin.top + 25) + ")");
 
+		//author label
+		svg.selectAll("authorLabel").data(revisions).enter().append("rect")
+				.attr("x", function(d, i) {
+					return xScale(new Date(d.time));
+				}).attr("width", barWidth)
+				.attr("height", 20).style(
+						"fill", function(d) {
+							return color(d.authorId);
+						}).attr(
+						"transform",
+						"translate(" + margin.left + "," + (margin.top - 30)
+								+ ")");
+
+		var groups = svg.selectAll("rectGroup").data(revisions).enter().append(
+				"g").attr("class", "rectGroup").attr("transform",
+				"translate(" + margin.left + "," + margin.top + ")");
+
+		var revisionIndex = -1;
+		var accumulateSegLength = 0;
+		var displayGroups = function(groups, start, end) {
+			return groups
+					.filter(function(d, i) {
+						return i >= start && i <= end;
+					})
+					.selectAll("rect")
+					.data(function(d) {
+						if (d.segments.length != 0)
+							return d.segments;
+						else
+							return [ -1 ];
+					})
+					.enter()
+					.append("rect")
+					.attr("class", "segment")
+					.attr("x", function(d, i) {
+						if (i == 0)
+							revisionIndex++;
+						return xScale(new Date(revisions[revisionIndex].time));
+					})
+					.attr(
+							"y",
+							function(d, i) {
+								if (i == 0) {
+									if (d == -1)
+										return yScale(0);
+									else {
+										accumulateSegLength = segments[d].segmentLength;
+										return yScale(accumulateSegLength
+												- segments[d].segmentLength);
+									}
+								} else {
+									accumulateSegLength += segments[d].segmentLength;
+									return yScale(accumulateSegLength
+											- segments[d].segmentLength);
+								}
+							}).attr("width", barWidth).attr("height",
+							function(d) {
+								if (d == -1)
+									return 0;
+								else
+									return yScale(segments[d].segmentLength);
+							}).attr("fill", function(d, i) {
+						if (d != -1)
+							return color(segments[d].authorId)
+					}).on("click", function(d) {
+						$('#change_doc_id').val(doc_id);
+						$('#change_seg_id').val(d);
+						$( "#dialog_form" ).dialog( "open" );
+						
+					});
+		}
+
+		displayGroups(groups, 0, 100);
+
+		//===============================
+		var link = [], preSegment = [];
+		for (var j = 0; j < revisions.length - 1; j++) {
+			link[j] = [];//link[j] represent the link between revision j and j+1
+			preSegment = revisions[j].segments; //revision j segments
+			newSegment = revisions[j + 1].segments; //revision j+1 segments
+			//iterate revision j+1 segments to find father segment (segmentId) or it own(-1) in the previous revision 
+			for (var k = 0; k < newSegment.length; k++) {
+				// If fatherSegmentIndex<0, it is not a child segment, either has a link to itself, or no link
+				if (segments[newSegment[k]].fatherSegmentIndex < 0) {
+					preIndex = preSegment.indexOf(newSegment[k]);
+					//preIndex = -1 means that the segment is not in the previous revision
+					if (preIndex != -1) {
+						link[j].push([ preSegment[preIndex], newSegment[k] ]);
+					} else {
+						//No link
+					}
+				} else {
+					// fatherSegmentIndex>0 it's a child segment, need to calculate the offset and position
+					preIndex = preSegment
+							.indexOf(segments[newSegment[k]].fatherSegmentIndex);
+					//If preindex != -1 means, the father is in previous revision, so link the fathter segment and child segment
+					if (preIndex != -1) {
+						link[j].push([ preSegment[preIndex], newSegment[k] ]);
+					}
+					// If preindex = -1 means, the father is not in previous revision, so link the child segment and itself in previsous version
+					else {
+						preIndex = preSegment.indexOf(newSegment[k]);
+						if (preIndex != -1) {
+							link[j]
+									.push([ preSegment[preIndex], newSegment[k] ]);
+						} else {
+							// means it has a father, but it's not in previous version, 
+							alert("link compute error" + preIndex + " "
+									+ segments[newSegment[k]]);
+							//console.log(segments[newSegment[k]]);
+						}
+					}
+				}
+			}//end of Segments  for loop
+			// If there's no link at all, put a empty link for visualize reason
+			if (link[j].length == 0) {
+				link[j].push([ -1, -1 ]);
+			}
+		}// End of Revisions For loop
+
+		var linkGroups = svg.selectAll("linkGroup").data(link).enter().append(
+				"g").attr("class", "linkGroup").attr(
+				"transform",
+				"translate(" + (margin.left + barWidth) + ","
+						+ margin.top + ")");
+
+		var linkRevisionIndex = -1;
+		var displayLinks = function(linkGroups, start1, end1) {
+			return linkGroups
+					.filter(function(d, i) {
+						return i >= start1 && i <= end1;
+					})
+					.selectAll("link")
+					.data(function(d) {
+						return d;
+					})
+					.enter()
+					.append("path")
+					.attr("class", "link")
+					.attr(
+							"d",
+							function(d, i) {
+								if (i == 0) {
+									linkRevisionIndex++;
+									accumulateSegLength1 = 0;
+									accumulateSegLength2 = 0;
+								}
+								// If d[1] = -1 means it has only an empty link (-1,-1)
+								if (d[1] == -1) {
+									return "";
+								} else {
+									x0 = xScale(new Date(revisions[linkRevisionIndex].time));
+									var tempSegments1 = revisions[linkRevisionIndex].segments;
+									var tempSegments2 = revisions[linkRevisionIndex + 1].segments;
+
+									var index1 = tempSegments1.indexOf(d[0]);
+									var index2 = tempSegments2.indexOf(d[1]);
+
+									var accumulateSegLength1 = 0, accumulateSegLength2 = 0;
+
+									for (var q = 0; q < index1; q++) {
+										accumulateSegLength1 += segments[tempSegments1[q]].segmentLength;
+									}
+									for (var q = 0; q < index2; q++) {
+										accumulateSegLength2 += segments[tempSegments2[q]].segmentLength;
+									}
+
+									if (d[1] == d[0]) {
+										y0 = yScale(accumulateSegLength1);
+									} else {
+										y0 = yScale(accumulateSegLength1
+												+ segments[d[1]].offsetInFatherSegment);
+									}
+									y1 = yScale(accumulateSegLength2);
+
+									x1 = xScale(new Date(revisions[linkRevisionIndex+1].time));
+									dy = yScale(segments[d[1]].segmentLength);
+
+									return "M " + x0 + "," + y0 + " " + x0
+											+ "," + (y0 + dy) + " " + x1 + ","
+											+ (y1 + dy) + " " + x1 + "," + y1
+											+ "Z";
+								}
+
+							}).attr("fill", function(d, i) {
+						if (d[1] != -1)
+							return color(segments[d[1]].authorId);
+					}).attr("opacity", 0.8);
+
+		}
+
+		displayLinks(linkGroups, 0, 100);
+    }
+		
 	}
 </script>
 
