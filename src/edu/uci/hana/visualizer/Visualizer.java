@@ -1789,7 +1789,7 @@ public class Visualizer {
 	 * 
 	 * The Servlet to handle user's request for changing a segment's author.
 	 * All its children segments' author also need to be changed.
-	 * 
+	 * So is the Revisions' author array
 	 * @author dakuowang
 	 *
 	 */
@@ -1813,7 +1813,8 @@ public class Visualizer {
 			}
 			if (request.getParameter("doc_id") == null
 					|| request.getParameter("segment_id") == null 
-					|| request.getParameter("author_id") == null) {
+					|| request.getParameter("author_id") == null 
+					|| request.getParameter("rev_id") == null) {
 				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 				response.getWriter().print(
 						GSON.toJson("Document / Segment / Author Id is not provided."));
@@ -1838,18 +1839,65 @@ public class Visualizer {
 			br = new BufferedReader(new FileReader(listFileDir
 					+ "/historyflow.json"));
 			bw = new BufferedWriter(new FileWriter(listFileDir + "/temp.json"));
-			
-			
+
 			int seg_id = Integer.parseInt(request.getParameter("segment_id"));
+			int rev_id =  Integer.parseInt(request.getParameter("rev_id")), rev_index=0;
+			int author_id = Integer.parseInt(request.getParameter("author_id"));
 			
 			String line = null;
+			Pattern p = Pattern.compile("(\\{\\\"segmentLength\\\":\\d+,\\\"authorId\\\":)(\\d+)(,\\\"fatherSegmentIndex\\\":)(-?\\d+)(,\\\"offsetInFatherSegment\\\":\\d+},?)");
+			Matcher m = null;
+			
 			while ((line = br.readLine()) != null) {
-				if(line.startsWith(",\"segments\"")){
+				if(line.startsWith("{\"authorId\"")){
+					if(rev_id == rev_index){
+						Pattern p2 = Pattern.compile("(\\{\\\"authorId\\\":)(\\[?((\\d),?)+\\]?)(,.*)");
+						Matcher m2 = p2.matcher(line);
+						while(m2.find()){
+							// means the revision author id is already an array
+							if(m2.group(2).startsWith("[")){
+								String[] items = m2.group(2).replaceAll("\\[", "").replaceAll("\\]", "").split(",");
+								//int[] results = new int[items.length];
+								int i =0;
+								for ( i = 0; i < items.length; i++) {
+								    /*try {
+								        results[i] = Integer.parseInt(items[i]);
+								    } catch (NumberFormatException nfe) {};
+								    */
+									// means the author id already in array
+									if(Integer.parseInt(items[i]) == author_id){
+										bw.write(line);
+										break;
+									}
+								}
+								//means the author id not in author array
+								if(i==items.length){
+									String s = m2.group(2).substring(0, m2.group(2).length() - 1);
+									bw.write(m2.group(1)+s+","+author_id+"]"+m2.group(5));
+								}
+							}
+							// means the author id is a single id
+							else{
+								if(author_id != Integer.parseInt(m2.group(2)))
+									bw.write(m2.group(1) +"["+ m2.group(2)+","+author_id +"]" +m2.group(5));
+								else
+									bw.write(line);
+							}
+							bw.newLine();
+						}
+					}
+					else{
+						bw.write(line);
+						bw.newLine();
+					}
+					rev_index++;
+					
+				}
+				else if(line.startsWith(",\"segments\"")){
 					HashSet<Integer> segIdSet = new HashSet<Integer>();
 					segIdSet.add(seg_id);
 					
-					Pattern p = Pattern.compile("(\\{\\\"segmentLength\\\":\\d+,\\\"authorId\\\":)(\\d+)(,\\\"fatherSegmentIndex\\\":)(-?\\d+)(,\\\"offsetInFatherSegment\\\":\\d+},?)");
-					Matcher m = p.matcher(line);
+					m = p.matcher(line);
 					int counter = 0;
 					
 					bw.write(",\"segments\":[");
@@ -1859,10 +1907,10 @@ public class Visualizer {
 						int fatherSegId = Integer.parseInt(m.group(4));
 						
 						if(segIdSet.contains(counter)){
-							bw.write(m.group(1) + request.getParameter("author_id") +m.group(3)+m.group(4)+m.group(5));
+							bw.write(m.group(1) + author_id +m.group(3)+m.group(4)+m.group(5));
 						}
 						else if(segIdSet.contains(fatherSegId)){
-							bw.write(m.group(1) + request.getParameter("author_id") +m.group(3)+m.group(4)+m.group(5));
+							bw.write(m.group(1) + author_id +m.group(3)+m.group(4)+m.group(5));
 							segIdSet.add(counter);
 						}
 						// segments that are not targets
