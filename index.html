@@ -114,13 +114,16 @@
 		<pre id="authResult"></pre>
 		-->
 		<!--  Hidden Dialog FORM to submit the changing author request -->
-		<div id="dialog_form" title="Segment Function">
+		<div id="dialog_form" title="Segment Function">	
 		<form>
 			<select id="author_list"></select>
 			<input type="hidden" id="change_doc_id" name="doc_id" value="">
 			<input type="hidden" id="change_seg_id" name="seg_id" value="">
 			<input type="hidden" id="change_rev_id" name="rev_id" value="">
 		</form>
+		</div>
+		<!-- Hidden Content dialog -->
+		<div id="content" title="Content">	
 		</div>
 	</div>
 	</body>
@@ -584,6 +587,22 @@
 						'Selected Segment #' + segment_id
 								+ ' Content is: <br/>');
 
+				
+				var doOk = function() {
+			          $("#content").dialog("close");
+			        }
+				
+			    var dialogOpts = {
+			          modal: true,
+			          buttons: {
+			            "Ok!": doOk
+			          },
+			 		  hight: 800,
+			 		  width: 500,
+			          autoOpen: false
+			    };
+				$('#content').dialog(dialogOpts);
+
 				$.ajax({
 					type : 'POST',
 					url : window.location.href + 'seg?doc_id=' + doc_id
@@ -594,15 +613,18 @@
 								+ " Result ");
 
 						$('#vizResult').append(result + ' <br/>');
-
+						$('#content').html(result+'<span></span>');
 					},
 					processData : false,
 					data : this.authResult.code
 				});
-
-				// some effect
-				//$('#vizResult').show('slow');
+				
+				$('#content').removeClass('ui-dialog-buttonpane ui-widget-content ui-helper-clearfix');
+				$('#content').dialog("open");
+				
 			},
+			
+
 			
 			/* 
 			 *	change the segment and all its children segments' author
@@ -907,6 +929,7 @@
 		var segments = dataset.segments;
 		var doc_id = dataset.docId;
 		var doc_name = dataset.docName;
+		
 	 	timescale_flag = typeof timescale_flag !== 'undefined' ? timescale_flag : false;
 
 		var authorOptions = d3.select("#author_list")
@@ -1014,6 +1037,7 @@
 				+ ")");
 			}
 		}
+		
 		
 		// segment rectangles
 		var groups = svg.selectAll("rectGroup").data(revisions).enter().append(
@@ -1225,6 +1249,7 @@
 						function(d) {
 							return d.time.substring(5, 10) + " " + d.time.substring(11, 16);
 						}).attr(
+
 						"transform","translate(" + (margin.left + 10) + "," + (margin.top-(5*barHeight)) + ") rotate(-90)");
 
 		/**
@@ -1265,6 +1290,7 @@
 				+ ")");
 			}
 		}
+
 		/*
 		//for each revision, mark the author for it above the axis
 		svg.selectAll("authorLabel").data(revisions).enter().append("rect")
