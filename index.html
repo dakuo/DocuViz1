@@ -893,9 +893,9 @@
 	function historyflow(svg, width, height, dataset, timescale_flag) {
 
 		var color = d3.scale.category10(), margin = {
-			'top' : 130,
+			'top' : 140,
 			'right' : 20,
-			'bottom' : (height / 4),
+			'bottom' : (height / 8),
 			'left' : 60
 		}, barHeight = 10;
 		
@@ -950,7 +950,9 @@
 				"transform",
 				"translate(" + (margin.left )
 						+ "," + (height - margin.bottom + (barHeight ) ) + ")");
-						
+	
+	var titleText = svg.append("text").attr("x",11).attr("y",11).text(""+doc_name);
+
     if(timescale_flag==false){
  		
 	    var xScale = d3.scale.ordinal().domain(d3.range(revisions.length))
