@@ -3,16 +3,19 @@
 <head>
 <title>{{ APPLICATION_NAME }}</title>
 <script type="text/javascript">
+	//For GAPI load check
+	var pickerApiLoaded = false;
 	(function() {
 		var po = document.createElement('script');
 		po.type = 'text/javascript';
 		po.async = true;
-		po.src = 'https://plus.google.com/js/client:plusone.js';
+		po.src = '//plus.google.com/js/client:plusone.js';
 
 		var s = document.getElementsByTagName('script')[0];
 		s.parentNode.insertBefore(po, s);
 
 	})();
+	/* Must be put after onApiLoad() function
 	(function() {
 		var po = document.createElement('script');
 		po.type = 'text/javascript';
@@ -22,10 +25,7 @@
 		s.parentNode.insertBefore(po, s);
 
 	})();
-
-
-	// For GAPI load check
-	var pickerApiLoaded = false;
+	*/
 </script>
 
 <!-- JavaScript specific to this application that is not related to API calls -->
@@ -79,7 +79,7 @@
 		<h2>Pick a Google Drive Document to see the revision history visualization</h2>
 		<p></p>
 
-		<button id="createPicker">Visualize your
+		<button id="createPicker2">Visualize your
 			Document</button>
 
 		<h2>Sign out and Disconnect with this app</h2>
@@ -307,7 +307,7 @@
 											$("#slider").hide();
 											$("#vizChart").empty();
 											$('#vizResult').empty();
-											$('#createPicker').attr("disabled",
+											$('#createPicker2').attr("disabled",
 													true);
 											$('#saveButton').attr("disabled",
 													true);
@@ -321,7 +321,7 @@
 													doc_name);
 
 										} else {
-											$('#createPicker').attr("disabled",
+											$('#createPicker2').attr("disabled",
 													false);
 										}
 									}).build();
@@ -421,7 +421,7 @@
 									'Downloading ' + result + '%. <br/>');
 						} else if (mode === "diff") {
 							if (result === "100") {
-								$('#createPicker').attr("disabled", false);
+								$('#createPicker2').attr("disabled", false);
 								$('#progressBar').hide();
 								$('#saveButton').attr("disabled",false);
 								$('#vizResult').append('Diff Done! <br/>');
@@ -837,8 +837,9 @@
 						
 						$('#disconnect').button();
 						$('#disconnect').click(helper.disconnectServer);
-						$('#createPicker').button();
-						$('#createPicker').click(createPicker);
+						$('#createPicker2').button();
+						$('#createPicker2').click(createPicker);
+						//$('#createPicker2').attr("disabled", true);
 						$('#saveButton').button();
 						$('#saveButton').attr("disabled",
 								true);
@@ -899,7 +900,8 @@
 	function onApiLoad() {
 		gapi.load('picker');
 		pickerApiLoaded = true;
-
+		$('#createPicker2').attr("disabled", false);
+		console.log("point0");
 	}
 
 	function createPicker() {
@@ -907,7 +909,7 @@
 		$("#progressBar").progressbar({
 			value : 0
 		});
-		
+		console.log("point1");
 		helper.createPicker(helper.authResult.access_token);
 	}
 
@@ -915,7 +917,7 @@
 	function historyflow(svg, width, height, dataset, timescale_flag) {
 
 		var color = d3.scale.category10(), margin = {
-			'top' : 140,
+			'top' : 150,
 			'right' : 20,
 			'bottom' : (height / 8),
 			'left' : 60
@@ -974,7 +976,7 @@
 				"translate(" + (margin.left )
 						+ "," + (height - margin.bottom + (barHeight ) ) + ")");
 	
-	var titleText = svg.append("text").attr("x",11).attr("y",11).text(""+doc_name);
+	var titleText = svg.append("text").attr("x",11).attr("y",16).attr("font-family", "sans-serif").attr("font-size", "20px").text(""+doc_name);
 
     if(timescale_flag==false){
  		
@@ -1494,5 +1496,7 @@
 		
 	}
 </script>
-
+<script
+	src="//apis.google.com/js/api.js?onload=onApiLoad"
+	type="text/javascript"></script>
 </html>
