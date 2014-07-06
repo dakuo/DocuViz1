@@ -27,3 +27,7 @@
 0BzmQVbjv3-H0VFJicGM0ZjFhNms:Cracking the coding interview 4th.pdf
 1b2zuC4j_RRHj-TgrKhcvLmqnsWBAEbqxfFRs0GK_2YE:Kevin's Notes
 1gqOd_nVByhpwPR8Ijl2-nsUnXoItPxuIIxvAnpAM9_g:Static Pages Content
+0BwLaSd-tPJmlVWpPY203WW5Vak0:David's Subject
+0BzmQVbjv3-H0WXBkazROcjdPSWs:total_sulfur_dioxide_quality_white.tsv
+1XqMysERiVA0QropFOtfetgmORtsb9JAb2mE2-hTeyoE:MVP Slides
+12aK3VkjOXYeBIlhlBtD9MGV6_9eTwj7RW34kqffNbfQ:Presentation 3*
