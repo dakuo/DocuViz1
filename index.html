@@ -1029,7 +1029,7 @@ $('.createPicker2').click(createPicker);
 		 		return d.revisionLength;
 		 	}) ]).range([ 0, height - margin.top - margin.bottom ]);
 
-		 var yAxis = d3.svg.axis().scale(yScale).orient("right").ticks(10);
+		 var yAxis = d3.svg.axis().scale(yScale).orient("right").ticks(10).tickFormat(d3.format("d"));
 		 svg.append("g").attr("class", "axis").attr("transform",
 		 	"translate(" + (margin.left - 55) + "," + margin.top + ")")
 		 .call(yAxis);
