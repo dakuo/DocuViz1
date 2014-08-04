@@ -65,6 +65,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Scanner;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
@@ -90,11 +92,13 @@ import edu.uci.hana.visualizer.diff_match_patch.Operation;
  * Smith) vicfryzel@google.com (Vic Fryzel)
  * 
  * @author dakuow1@uci.edu (Dakuo Wang) since Jan 29, 2014
- * @author Jingwen Zhang
  * @advisor Judith Olson
- * @advisor Crista Lopes Dev Log: Feb 1, 2014 Added Polling Javascript function
- *          and Servlet handler Feb 5, 2014 Added Diff algorithm (beta)
+ * @advisor Crista Lopes 
  * 
+ * Dev Log: Feb 1, 2014 Added Polling Javascript function
+ *          and Servlet handler 
+ *          Feb 5, 2014 Added Diff algorithm (beta)
+ * 			Jul 21, 2014 Added Movement Detection algorithm feature
  */
 public class Visualizer {
 	/*
@@ -1223,11 +1227,12 @@ public class Visualizer {
 								}
 
 								newRevision.setContent(str.toString());
-								newRevision.setRevisionLength(newRevision
-										.getContent().length());
+								newRevision.setRevisionLength(newRevision.getContent().length());
 								br.close();
 
-								// Diff the two revisions
+								/** Diff two adjacent revisions
+								 *  The Core Algorithm
+								 */
 								diff(oldRevision, newRevision, segments);
 								if (oldRevision != null){
 									bw.write(",");
@@ -1240,6 +1245,7 @@ public class Visualizer {
 								// revision
 								// to prepare for next calculation
 								newRevision.updateSegmentsIndex();
+								
 								oldRevision = newRevision;
 
 								// for polling purpose
@@ -1258,7 +1264,7 @@ public class Visualizer {
 							bw.close();
 
 							// create a new segments list file to store all
-							// segments' content
+							// segments' content for the content retrieving function
 							File segmentsContent = new File(listFileDir
 									+ "/segmentsContent.txt");
 							BufferedWriter segmentsBw = new BufferedWriter(
@@ -1313,8 +1319,9 @@ public class Visualizer {
 		}
 
 		/**
-		 * The function to calculate the difference between two adjunct
-		 * revisions file The three parameters are:
+		 * The function to calculate the difference between two adjacent
+		 * revisions using google-diff-match-patch library's diff results as input.
+		 * The three parameters are:
 		 * 
 		 * @param oldRevision
 		 *            MyRevision represents the older revision object
@@ -1325,7 +1332,7 @@ public class Visualizer {
 		 *            for one document The result will be stored in each
 		 *            revisions segmentsList and the document's whole segments
 		 *            list
-		 * @author Dakuo Wang
+		 * @author Dakuo Wang updated July 23, 2014
 		 */
 		private void diff(MyRevision oldRevision, MyRevision newRevision,
 				ArrayList<MySegment> segmentList) {
@@ -1334,7 +1341,6 @@ public class Visualizer {
 				MySegment insertSegment = new MySegment();
 				insertSegment.setSegmentId(segmentIndex++);
 				insertSegment.setAuthorId(newRevision.getAuthorId());
-				// insertSegment.setTime(newRevision.getTime());
 				insertSegment.setContent(newRevision.getContent());
 				insertSegment.setStartIndex(0);
 				insertSegment.setLength(newRevision.getContent().length());
@@ -1370,35 +1376,420 @@ public class Visualizer {
 				int charPointer1 = 0;
 				int charPointer2 = 0;
 				int segmentsSize = oldRevision.getSegments().size();
+				
+				/**
+				 * Try to handle the movement detection 
+				 * Firstly Delete then Add 
+				 * 
+				 * The idea is whenever a DELETE occurs, we save the DELETE DIFF CONTENT(String) into a deleteSegmentMap,
+				 * the KEY for the content in the map is the charpointer1 in the older revision. If there is a ADD occurs afterward,
+				 * we compare the ADD CONTENT(String) with deleteSegmentMap's element CONTENT(String). If there is a match, we will 
+				 * then searching for all segments existing in the content in the old revision, and make a copy for each of 
+				 * them(SEGMENTS) in the new revision, instead of Creating A New SEGMENT.
+				 * 
+				 **/
+				//detect only segment's length more than 20 characters
+				int moveDetectThreshhold = 20;
+
+				HashMap<Integer, String> deleteSegmentMap = new HashMap<Integer,String>();
+				/**
+				 * Firstly Add then Delete 
+				 * The idea is whenever a ADD occurs, we save the ADD DIFF CONTENT(String) into a addSegmentMap,
+				 * the KEY for the segment in the map is the SegmentID in the newer revision. If there is a DELETE occurs afterward,
+				 * we compare the DELETE CONTENT(String) with deleteSegmentMap's element CONTENT(String). If there is a match, we will 
+				 * then searching for all segments existing in the DIFF CONTENT in the old revision, and then assign the first found 
+				 * segment id as the fatherSegmentId for the ADD segment in the new revision.
+				 */
+				HashMap<Integer, String> addSegmentMap = new HashMap<Integer,String>();
+				/**
+				 * The END of handling movement detection
+				 */
 
 				for (Diff diff : diffs) {
 					Operation diffType = diff.operation;
 					String diffContent = diff.text;
 					int diffLength = diffContent.length();
+					
+					if (diff.operation.equals(diff_match_patch.Operation.DELETE)) {
+						
+						/**
+						 * Try to handle the movement detection 
+						 **/
+						if(diffLength>=moveDetectThreshhold){
+							/**
+							 * Firstly ADD then DELETE
+							 **/
+							Iterator<Entry<Integer, String>> iterator = addSegmentMap.entrySet().iterator();
+							boolean moveFlag = false;
+							
+							while (iterator.hasNext()) {
+							    Map.Entry<Integer,String> pairs = (Map.Entry<Integer,String>)iterator.next();
+							    String value =  pairs.getValue();
+							    Integer key = pairs.getKey();
+							    // To delete those annoying whitespace in the beginning and at the end, and in the middle :)
+							    if(value.replaceAll("\\s+","").equals(diffContent.replaceAll("\\s+",""))){
+								//if(value.equals(diffContent)){
+									moveFlag = true;
+									/** 
+									 * A superb algorithm(VARIANT) to look for existing segments in a given content string in the old revision 
+									 * Traverse old revision's segments to divide segment to new segment
+									 */
+									
+									for (int i = 0; i < segmentsSize; i++) {
+										MySegment segment = oldRevision.getSegments()
+												.get(i);
 
-					if (diffType.equals(diff_match_patch.Operation.INSERT)) {
-						MySegment insertSegment = new MySegment();
-						insertSegment.setSegmentId(segmentIndex++);
-						insertSegment.setAuthorId(newRevision.getAuthorId());
-						// insertSegment.setTime(newRevision.getTime());
-						insertSegment.setContent(diffContent);
-						insertSegment.setStartIndex(charPointer2);
-						insertSegment.setLength(diffLength);
-						if (charPointer2 == 0 && diffLength == 0)
-							insertSegment.setEndIndex(0);
-						else
-							insertSegment.setEndIndex(charPointer2 + diffLength
-									- 1);
-						insertSegment.setVisible(true);
-						newRevision.addSegment(insertSegment);
-						segmentList.add(insertSegment);
-						charPointer2 += diffLength;
-					} else if (diff.operation
-							.equals(diff_match_patch.Operation.DELETE)) {
+										if (charPointer1 > segment.getEndIndex())
+											continue;
+										else if ((charPointer1 + diffLength - 1) < segment
+												.getStartIndex())
+											break;
+										// The segment is at the same size as the diff content
+										else if (charPointer1 == segment.getStartIndex()
+												&& (charPointer1 + diffLength - 1) == segment
+														.getEndIndex()) {
+											segmentList.get(key).setFatherSegmentIndex(segment.getSegmentId());
+											break;
+										} 
+										// 
+										else if (charPointer1 == segment.getStartIndex()
+												&& (charPointer1 + diffLength - 1) > segment
+														.getEndIndex()) {
+											segmentList.get(key).setFatherSegmentIndex(segment.getSegmentId());
+											break;
+										} 
+										// 
+										else if (charPointer1 == segment.getStartIndex()
+												&& (charPointer1 + diffLength - 1) < segment
+														.getEndIndex()) {
+											segmentList.get(key).setFatherSegmentIndex(segment.getSegmentId());
+											break;
+										}
+										//
+										else if (charPointer1 > segment.getStartIndex()
+												&& (charPointer1 + diffLength - 1) <= segment
+														.getEndIndex()) {
+											segmentList.get(key).setFatherSegmentIndex(segment.getSegmentId());
+											segmentList.get(key).setOffsetInFatherSegment(charPointer1-segment.getStartIndex());
+											segmentList.get(key).setAuthorId(segment.getAuthorId());
+											break;
+										} 
+										//
+										else if (charPointer1 > segment.getStartIndex()
+												&& (charPointer1 + diffLength - 1) > segment
+														.getEndIndex()) {
+											segmentList.get(key).setFatherSegmentIndex(segment.getSegmentId());
+											segmentList.get(key).setOffsetInFatherSegment(charPointer1-segment.getStartIndex());
+											segmentList.get(key).setAuthorId(segment.getAuthorId());
+											break;
+										} 
+										//the following occasions should never occur
+										else if (charPointer1 < segment.getStartIndex()
+												&& (charPointer1 + diffLength - 1) == segment
+														.getEndIndex()) {
+											segmentList.get(key).setFatherSegmentIndex(segment.getSegmentId());
+											break;
+										} 
+										//
+										else if (charPointer1 < segment.getStartIndex()
+												&& (charPointer1 + diffLength - 1) > segment
+														.getEndIndex()) {
+											segmentList.get(key).setFatherSegmentIndex(segment.getSegmentId());
+											break;
+										} 
+										//
+										else if (charPointer1 < segment.getStartIndex()
+												&& (charPointer1 + diffLength - 1) < segment
+														.getEndIndex()) {
+											segmentList.get(key).setFatherSegmentIndex(segment.getSegmentId());
+											break;
+										}
+									}
+									
+									/** End of finding the segments ID in the diff content in the old revision**/
+									break;
+								}
+							}
+							
+							/**
+							 * The END of handling ADD-DELETE movement detection
+							 */
+							
+							/**
+							 * Firstly Delete then Add
+							 */
+							if(moveFlag==false){
+								deleteSegmentMap.put(charPointer1,diffContent);
+							}
+						}
+						
+						/**
+						 * The END of handling movement detection
+						 */
+						
 						charPointer1 += diffLength;
-					} else {
-						// Traverse old revision's segments to divide segment to
-						// new segments
+					}
+					else if (diffType.equals(diff_match_patch.Operation.INSERT)) {
+						/**
+						 * Try to handle the movement detection 
+						 * Firstly Delete then Add or Firstly Add then Delete 
+						 **/
+						if(diffLength>=moveDetectThreshhold){
+							Iterator<Entry<Integer, String>> iterator = deleteSegmentMap.entrySet().iterator();
+							boolean moveFlag = false;
+							
+							while (iterator.hasNext()) {
+							    Map.Entry<Integer,String> pairs = (Map.Entry<Integer,String>)iterator.next();
+							    String value =  pairs.getValue();
+							    Integer key = pairs.getKey();
+								//if(value.equals(diffContent)){
+							    if(value.replaceAll("\\s+","").equals(diffContent.replaceAll("\\s+",""))){
+									moveFlag = true;
+									/**
+									 * Find the segments in the diff content in the old revision
+									 */
+									int charPointer = key;
+									/** 
+									 * A superb algorithm to look for existing segments in a given content string in the old revision 
+									 * Traverse old revision's segments to divide segment to new segment
+									 */
+									
+									for (int i = 0; i < segmentsSize; i++) {
+										MySegment segment = oldRevision.getSegments()
+												.get(i);
+
+										if (charPointer > segment.getEndIndex())
+											continue;
+										else if ((charPointer + diffLength - 1) < segment
+												.getStartIndex())
+											break;
+										// The segment is at the same size as the diff content
+										else if (charPointer == segment.getStartIndex()
+												&& (charPointer + diffLength - 1) == segment
+														.getEndIndex()) {
+											segment.setNewStartIndex(charPointer2);
+											segment.setNewEndIndex(segment
+													.getNewStartIndex()
+													+ segment.getLength() - 1);
+											newRevision.addSegment(segment);
+											charPointer2 += segment.getLength();
+										} 
+										// 
+										else if (charPointer == segment.getStartIndex()
+												&& (charPointer + diffLength - 1) > segment
+														.getEndIndex()) {
+											segment.setNewStartIndex(charPointer2);
+											segment.setNewEndIndex(segment
+													.getNewStartIndex()
+													+ segment.getLength() - 1);
+											newRevision.addSegment(segment);
+											charPointer2 += segment.getLength();
+										} 
+										// 
+										else if (charPointer == segment.getStartIndex()
+												&& (charPointer + diffLength - 1) < segment
+														.getEndIndex()) {
+											MySegment targetSegment = new MySegment();
+											targetSegment
+													.setAuthorId(segment.getAuthorId());
+											targetSegment.setLength(diffLength
+													- segment.getStartIndex()
+													+ charPointer);
+											targetSegment.setStartIndex(charPointer2);
+											targetSegment.setEndIndex(targetSegment
+													.getStartIndex()
+													+ targetSegment.getLength() - 1);
+											targetSegment.setContent(diffContent.substring(
+													segment.getStartIndex() - charPointer,
+													segment.getStartIndex() - charPointer
+															+ targetSegment.getLength()));
+											targetSegment.setSegmentId(segmentIndex++);
+											targetSegment.setFatherSegmentIndex(segment
+													.getSegmentId());
+											targetSegment.setOffsetInFatherSegment(0);
+											targetSegment.setVisible(true);
+
+											newRevision.addSegment(targetSegment);
+											segmentList.add(targetSegment);
+
+											charPointer2 += targetSegment.getLength();
+										}
+										//
+										else if (charPointer > segment.getStartIndex()
+												&& (charPointer + diffLength - 1) <= segment
+														.getEndIndex()) {
+
+											MySegment targetSegment = new MySegment();
+											targetSegment
+													.setAuthorId(segment.getAuthorId());
+											targetSegment.setLength(diffLength);
+											targetSegment.setStartIndex(charPointer2);
+											targetSegment.setEndIndex(targetSegment
+													.getStartIndex()
+													+ targetSegment.getLength() - 1);
+											targetSegment.setContent(diffContent);
+											targetSegment.setSegmentId(segmentIndex++);
+											// targetSegment.setTime(newRevision.getTime());
+											targetSegment.setFatherSegmentIndex(segment
+													.getSegmentId());
+											targetSegment
+													.setOffsetInFatherSegment(charPointer
+															- segment.getStartIndex());
+											targetSegment.setVisible(true);
+
+											newRevision.addSegment(targetSegment);
+											segmentList.add(targetSegment);
+											charPointer2 += targetSegment.getLength();
+										} else if (charPointer > segment.getStartIndex()
+												&& (charPointer + diffLength - 1) > segment
+														.getEndIndex()) {
+
+											MySegment targetSegment = new MySegment();
+											targetSegment.setSegmentId(segmentIndex++);
+											targetSegment
+													.setAuthorId(segment.getAuthorId());
+											// targetSegment.setTime(newRevision.getTime());
+											targetSegment.setFatherSegmentIndex(segment
+													.getSegmentId());
+											targetSegment
+													.setOffsetInFatherSegment(charPointer
+															- segment.getStartIndex());
+											targetSegment.setStartIndex(charPointer2);
+											targetSegment.setLength(segment.getEndIndex()
+													- charPointer + 1);
+											targetSegment.setEndIndex(charPointer2
+													+ targetSegment.getLength() - 1);
+											targetSegment.setContent(diffContent.substring(
+													0, segment.getEndIndex() - charPointer
+															+ 1));
+											targetSegment.setVisible(true);
+
+											newRevision.addSegment(targetSegment);
+											segmentList.add(targetSegment);
+											charPointer2 += targetSegment.getLength();
+										} else if (charPointer < segment.getStartIndex()
+												&& (charPointer + diffLength - 1) == segment
+														.getEndIndex()) {
+											segment.setNewStartIndex(charPointer2);
+											segment.setNewEndIndex(segment
+													.getNewStartIndex()
+													+ segment.getLength() - 1);
+											newRevision.addSegment(segment);
+											charPointer2 += segment.getLength();
+										} else if (charPointer < segment.getStartIndex()
+												&& (charPointer + diffLength - 1) > segment
+														.getEndIndex()) {
+
+											segment.setNewStartIndex(charPointer2);
+											segment.setNewEndIndex(segment
+													.getNewStartIndex()
+													+ segment.getLength() - 1);
+
+											newRevision.addSegment(segment);
+											charPointer2 += segment.getLength();
+										} else if (charPointer < segment.getStartIndex()
+												&& (charPointer + diffLength - 1) < segment
+														.getEndIndex()) {
+
+											MySegment targetSegment = new MySegment();
+											targetSegment
+													.setAuthorId(segment.getAuthorId());
+											targetSegment.setLength(charPointer
+													+ diffLength - segment.getStartIndex());
+											targetSegment.setStartIndex(charPointer2);
+											targetSegment.setEndIndex(targetSegment
+													.getStartIndex()
+													+ targetSegment.getLength() - 1);
+											targetSegment.setContent(diffContent.substring(
+													segment.getStartIndex() - charPointer,
+													segment.getStartIndex() - charPointer
+															+ targetSegment.getLength()));
+											targetSegment.setSegmentId(segmentIndex++);
+											// targetSegment.setTime(newRevision.getTime());
+											targetSegment.setFatherSegmentIndex(segment
+													.getSegmentId());
+											targetSegment.setOffsetInFatherSegment(0);
+											targetSegment.setVisible(true);
+
+											newRevision.addSegment(targetSegment);
+											segmentList.add(targetSegment);
+											charPointer2 += targetSegment.getLength();
+										}
+
+									}
+									
+									/** End of finding the segments ID in the diff content in the old revision**/
+									
+									break;
+								}
+							    
+							}
+							/**
+							 * In this case, we couldn't find the movement segment. In other words, this is not a DELETE-ADD move.
+							 * But it could be either a NEW Segment or a ADD-DELETE move.
+							 */
+							if(moveFlag==false){
+								MySegment insertSegment = new MySegment();
+								insertSegment.setSegmentId(segmentIndex++);
+								insertSegment.setAuthorId(newRevision.getAuthorId());
+								// insertSegment.setTime(newRevision.getTime());
+								insertSegment.setContent(diffContent);
+								insertSegment.setStartIndex(charPointer2);
+								insertSegment.setLength(diffLength);
+								if (charPointer2 == 0 && diffLength == 0)
+									insertSegment.setEndIndex(0);
+								else
+									insertSegment.setEndIndex(charPointer2 + diffLength
+											- 1);
+								insertSegment.setVisible(true);
+								newRevision.addSegment(insertSegment);
+								segmentList.add(insertSegment);
+								charPointer2 += diffLength;
+								
+								/**
+								 * Try to handle the movement detection 
+								 * Firstly ADD then DELETE
+								 **/
+								
+								addSegmentMap.put(insertSegment.getSegmentId(),insertSegment.getContent());
+								
+								/**
+								 * The END of handling ADD-DELETE movement detection
+								 */
+							}
+
+						}
+						
+						/**
+						 * The END of handling movement detection,
+						 */
+						
+						else{
+							/**
+							 * In this case, the content is not more than the movement detection threshold
+							 */
+							MySegment insertSegment = new MySegment();
+							insertSegment.setSegmentId(segmentIndex++);
+							insertSegment.setAuthorId(newRevision.getAuthorId());
+							// insertSegment.setTime(newRevision.getTime());
+							insertSegment.setContent(diffContent);
+							insertSegment.setStartIndex(charPointer2);
+							insertSegment.setLength(diffLength);
+							if (charPointer2 == 0 && diffLength == 0)
+								insertSegment.setEndIndex(0);
+							else
+								insertSegment.setEndIndex(charPointer2 + diffLength
+										- 1);
+							insertSegment.setVisible(true);
+							newRevision.addSegment(insertSegment);
+							segmentList.add(insertSegment);
+							charPointer2 += diffLength;
+						}
+					}  else {
+						/** 
+						 * A superb algorithm to look for existing segments in a given content string in the old revision 
+						 * Traverse old revision's segments to divide segment to new segment
+						 */
 
 						for (int i = 0; i < segmentsSize; i++) {
 							MySegment segment = oldRevision.getSegments()
@@ -1409,7 +1800,7 @@ public class Visualizer {
 							else if ((charPointer1 + diffLength - 1) < segment
 									.getStartIndex())
 								break;
-							// The same segment
+							// The segment is at the same size as the diff content
 							else if (charPointer1 == segment.getStartIndex()
 									&& (charPointer1 + diffLength - 1) == segment
 											.getEndIndex()) {
@@ -1419,7 +1810,9 @@ public class Visualizer {
 										+ segment.getLength() - 1);
 								newRevision.addSegment(segment);
 								charPointer2 += segment.getLength();
-							} else if (charPointer1 == segment.getStartIndex()
+							} 
+							// 
+							else if (charPointer1 == segment.getStartIndex()
 									&& (charPointer1 + diffLength - 1) > segment
 											.getEndIndex()) {
 								segment.setNewStartIndex(charPointer2);
@@ -1428,7 +1821,9 @@ public class Visualizer {
 										+ segment.getLength() - 1);
 								newRevision.addSegment(segment);
 								charPointer2 += segment.getLength();
-							} else if (charPointer1 == segment.getStartIndex()
+							} 
+							// 
+							else if (charPointer1 == segment.getStartIndex()
 									&& (charPointer1 + diffLength - 1) < segment
 											.getEndIndex()) {
 								MySegment targetSegment = new MySegment();
@@ -1446,7 +1841,6 @@ public class Visualizer {
 										segment.getStartIndex() - charPointer1
 												+ targetSegment.getLength()));
 								targetSegment.setSegmentId(segmentIndex++);
-								// targetSegment.setTime(newRevision.getTime());
 								targetSegment.setFatherSegmentIndex(segment
 										.getSegmentId());
 								targetSegment.setOffsetInFatherSegment(0);
@@ -1560,11 +1954,12 @@ public class Visualizer {
 							}
 
 						}
-
+						/**
+						 * THE END of the superb old revision traverse function 
+						 */
 						charPointer1 += diffLength;
 
 					}
-
 				}
 
 			}

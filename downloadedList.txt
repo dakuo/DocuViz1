@@ -47,3 +47,5 @@
 0B54vKS_D3Nj1OVFXVjBNbEFQMjg:plugins.js
 1vzqveXY38RDFU-gIn1IhR9c7NgXs26z2ZTq1qNDRY6c:Brainstorm for 2014 summer project
 1oaQD7uxJ1mermJvAknVq_yijOXEkEKpjAlSSo9Mcn18:June 26 Meeting
+1yOhefnQQ3IB33Z1yADxSEzpEWZdMGxI1V3ZuhBSgbjQ:How to code the revision histories
+1tGTUxdN_wAj9L71iOzHxD5zYNI6-8_FNO3xPdzFQoR8:Test For Movement Detection

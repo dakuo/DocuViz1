@@ -1033,6 +1033,12 @@ $('.createPicker2').click(createPicker);
 		 svg.append("g").attr("class", "axis").attr("transform",
 		 	"translate(" + (margin.left - 55) + "," + margin.top + ")")
 		 .call(yAxis);
+		 
+		// the yAxis ending tick
+		svg.append("text").attr("transform",
+				"translate(" + 15 + "," + (height-margin.bottom) + ")").text(d3.max(revisions, function(d) {
+					return d.revisionLength;
+				}));
 
 		 var legend = svg.selectAll("authorGroup").data(authors).enter().append(
 		 	"rect").attr("class", "segment").attr("x", 0).attr("y",
@@ -1047,26 +1053,35 @@ $('.createPicker2').click(createPicker);
 		 		"transform",
 		 		"translate(" + (margin.left )+ ","
 		 			+ (height - margin.bottom ) + ")");
+		 
+		// var author contribution in the final revision
+		var authorContribution = [];
+		for (var i=0;i<authors.length;i++){
+			authorContribution[i]=0;
+		}
+		revisions[revisions.length-1].segments.forEach(function(element){
+			authorContribution[segments[element].authorId] += segments[element].segmentLength;
+		});
+		
+		var legendText = svg.selectAll("authorText").data(authors).enter()
+			.append("text").attr("x", 40 + 10).attr("y", function(d, i) {
+				return i * (barHeight + 5);
+			})
+			.attr("font-family", "sans-serif").attr("font-size", "16px")
+			.attr("fill", "black").text(
+					function(d, i) {
+						return d + " " + authorContribution[i];
+					}).attr(
+					"transform",
+					"translate(" + (margin.left )
+							+ "," + (height - margin.bottom + (barHeight ) ) + ")");
 
-		 		var legendText = svg.selectAll("authorText").data(authors).enter()
-		 		.append("text").attr("x", 40 + 10).attr("y", function(d, i) {
-		 			return i * (barHeight + 5);
-		 		})
-		 		.attr("font-family", "sans-serif").attr("font-size", "16px")
-		 		.attr("fill", "black").text(
-		 			function(d) {
-		 				return d;
-		 			}).attr(
-		 			"transform",
-		 			"translate(" + (margin.left )
-		 				+ "," + (height - margin.bottom + (barHeight ) ) + ")");
+		var titleText = svg.append("text").attr("x",11).attr("y",16).attr("font-family", "sans-serif").attr("font-size", "20px").text(""+doc_name);
 
-		 			var titleText = svg.append("text").attr("x",11).attr("y",16).attr("font-family", "sans-serif").attr("font-size", "20px").text(""+doc_name);
+		if(timescale_flag==false){
 
-		 			if(timescale_flag==false){
-
-		 				var xScale = d3.scale.ordinal().domain(d3.range(revisions.length))
-		 				.rangeRoundBands([ 0, width - margin.left - margin.right ], 0.5);
+			var xScale = d3.scale.ordinal().domain(d3.range(revisions.length))
+			.rangeRoundBands([ 0, width - margin.left - margin.right ], 0.5);
 
 
 		// time
