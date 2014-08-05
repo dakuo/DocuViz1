@@ -3,7 +3,7 @@
 <head>
 	<title>{{ APPLICATION_NAME }}</title>
 
-	<link rel="stylesheet" href="http://kubiwork.com/othersites/docuviz/css/global.css">
+	<link rel="stylesheet" href="http://kubiwork.com/othersites/docuviz/css/global2.css">
 
   <link rel="stylesheet"
   href="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/themes/start/jquery-ui.css"
@@ -72,8 +72,14 @@ type="text/javascript"></script>
           </h2>
 
           <span class="content__description">
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Odit laudantium quaerat corporis nisi suscipit. Quod quaerat perspiciatis reiciendis expedita nesciunt totam ab, architecto necessitatibus recusandae pariatur ad, voluptatem eum eaque?
+            DocuViz visualizes how a document evolves in Google Docs, showing who did what when. A user connects DocuViz  with his Google Docs, selects a document and generates a visualization of the revision history of the document. A user can also interact with the diagram in various ways and save it. Potential uses of DocuViz include supporting collaborative writing, helping with students’ process in learning to write, interpreting collaboration patterns and evaluating participation. DocuViz was developed by the Hana Lab at UC Irvine, including Dakuo Wang, Jingwen Zhang, Judy and Gary Olson, and Trung Nguyen.
+
+						<p>
+							The ideas in Docuviz are inspired by History Flow by Fernanda Viegas and Martin Wattenberg. The program is written in XXXX, and incorporates the API from Google Docs, the D3.js visualization library by Michael Bostock, and the text diff algorithm by Eugene Myers.
+						</p>
+
           </span>
+
 
           <!-- Google Log in Btn -->
           <div id="gConnect">
@@ -1033,7 +1039,7 @@ $('.createPicker2').click(createPicker);
 		 svg.append("g").attr("class", "axis").attr("transform",
 		 	"translate(" + (margin.left - 55) + "," + margin.top + ")")
 		 .call(yAxis);
-		 
+
 		// the yAxis ending tick
 		svg.append("text").attr("transform",
 				"translate(" + 15 + "," + (height-margin.bottom) + ")").text(d3.max(revisions, function(d) {
@@ -1053,7 +1059,7 @@ $('.createPicker2').click(createPicker);
 		 		"transform",
 		 		"translate(" + (margin.left )+ ","
 		 			+ (height - margin.bottom ) + ")");
-		 
+
 		// var author contribution in the final revision
 		var authorContribution = [];
 		for (var i=0;i<authors.length;i++){
@@ -1062,7 +1068,7 @@ $('.createPicker2').click(createPicker);
 		revisions[revisions.length-1].segments.forEach(function(element){
 			authorContribution[segments[element].authorId] += segments[element].segmentLength;
 		});
-		
+
 		var legendText = svg.selectAll("authorText").data(authors).enter()
 			.append("text").attr("x", 40 + 10).attr("y", function(d, i) {
 				return i * (barHeight + 5);
