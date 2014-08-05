@@ -488,7 +488,7 @@
 		        // $('.log__content').append('Viz Result for Document: ' + doc_name + '<br/>');
 
 			 	$('#change_doc_id').val(doc_id);
-
+			 	
 				$.ajax({
 					type : 'POST',
 					url : window.location.href + 'viz?doc_id=' + doc_id,
@@ -548,7 +548,6 @@
 					    		// revision start from 0, so we need to change the index minus one
 					    		$( "#amount" ).text( "Rev " + ui.values[ 0 ] + " - Rev " + ui.values[ 1 ] );
 
-								//TODO change ajax to post
 								$.ajax({
 									type : 'POST',
 									url : window.location.href + 'viz?doc_id=' + doc_id+'&end_rev_index='+(ui.values[ 1 ]-1) +'&start_rev_index='+(ui.values[ 0 ]-1),
@@ -717,7 +716,73 @@
 					 */
 					$.ajax({
 						type : 'POST',
-						url : window.location.href + 'viz?doc_id=' + doc_id,
+						url : window.location.href + 'viz?doc_id=' + doc_id+'&end_rev_index='+(values[1]-1) +'&start_rev_index='+(values[0]-1),
+						contentType : 'application/octet-stream; charset=utf-8',
+						success : function(result) {
+							console.log("Start Redraw Visualization");
+
+							var dataset = $.parseJSON(result);
+							historyflow(svg, width, height, dataset);
+							$('#vizChart').fadeIn(300);
+						}
+					});
+				});
+			},
+			
+			/*
+			 *	change the authorlabel on top of revisions
+			 *
+			 */
+			 changeAuthorlabel : function(doc_id, rev_id, author_id) {
+			 	$.ajax({
+			 		type : 'POST',
+			 		url : window.location.href + 'changeAuthorlabel?doc_id=' + doc_id
+			 		+ '&author_id=' + author_id + '&rev_id='+rev_id,
+			 		contentType : 'application/octet-stream; charset=utf-8',
+			 		success : function(result) {
+			 			console.log("revision id: "+rev_id);
+			 			// $('.log__content').append(result + ' <br/>');
+			 		},
+			 		processData : false,
+			 		data : this.authResult.code
+			 	});
+
+			 	$('#vizChart').fadeOut(300,function(){
+			 		$('#vizChart').empty();
+					/*
+					 ** To Prepare the SVG Convas for drawing the history flow
+					 */
+					 var width = 1280, height = 900, margin = {
+					 	'top' : 20,
+					 	'right' : 10,
+					 	'bottom' : 10,
+					 	'left' : 10
+					 };
+					 var svg = d3.select("#vizChart").append("svg")
+					 .attr(
+					 	"width",
+					 	width + margin.left
+					 	+ margin.right)
+					 .attr(
+					 	"height",
+					 	height + margin.top
+					 	+ margin.bottom)
+					 .attr(
+					 	"margin-left",
+					 	margin.left
+					 	)
+					 .attr(
+					 	"margin-top",
+					 	margin.top
+					 	);
+					/*
+					 * Draw the history flow
+					 * refresh the chart
+					 */
+					var values = $( "#sliderBar" ).slider( "option", "values" );
+					$.ajax({
+						type : 'POST',
+						url : window.location.href + 'viz?doc_id=' + doc_id+'&end_rev_index='+(values[1]-1) +'&start_rev_index='+(values[0]-1),
 						contentType : 'application/octet-stream; charset=utf-8',
 						success : function(result) {
 							console.log("Start Redraw Visualization");
@@ -807,9 +872,10 @@
 					 * Draw the history flow
 					 * refresh the chart
 					 */
+					var values = $( "#sliderBar" ).slider( "option", "values" );
 					$.ajax({
 						type : 'POST',
-						url : window.location.href + 'viz?doc_id=' + doc_id,
+						url : window.location.href + 'viz?doc_id=' + doc_id+'&end_rev_index='+(values[1]-1) +'&start_rev_index='+(values[0]-1),
 						contentType : 'application/octet-stream; charset=utf-8',
 						success : function(result) {
 							console.log("Start Redraw Visualization");
@@ -855,9 +921,10 @@
 					 * Draw the history flow
 					 */
 					// refresh the chart
+					var values = $( "#sliderBar" ).slider( "option", "values" );
 					$.ajax({
 						type : 'POST',
-						url : window.location.href + 'viz?doc_id=' + doc_id,
+						url : window.location.href + 'viz?doc_id=' + doc_id+'&end_rev_index='+(values[1]-1) +'&start_rev_index='+(values[0]-1),
 						contentType : 'application/octet-stream; charset=utf-8',
 						success : function(result) {
 							console.log("Start Redraw Visualization");
@@ -904,7 +971,8 @@
 					var seg_id = $('#change_seg_id').val();
 					var author_id = $('#author_list').val();
 					var revision_id = $('#change_rev_id').val();
-					helper.changeSegmentAuthor(doc_id, revision_id, seg_id, author_id);
+					var values = $( "#sliderBar" ).slider( "option", "values" );
+					helper.changeSegmentAuthor(doc_id, revision_id-1+values[0], seg_id, author_id);
 					$( this ).dialog( "close" );
 				},
 				Cancel: function() {
@@ -923,11 +991,11 @@
 			modal: true,
 			buttons: {
 				"Change Author Label": function() {
-					var doc_id = $('#authorlabel_change_doc_id').val();
-					//var seg_id = $('#authorlabel_change_seg_id').val();
-					var author_id = $('#authorlabel_author_list').val();
-					var revision_id = $('#authorlabel_change_rev_id').val();
-					//helper.changeSegmentAuthor(doc_id, revision_id, seg_id, author_id);
+					var authorlabel_doc_id = $('#authorlabel_change_doc_id').val();
+					var authorlabel_author_id = $('#authorlabel_author_list').val();
+					var authorlabel_rev_id = $('#authorlabel_change_rev_id').val();
+					var authorlabel_values = $( "#sliderBar" ).slider( "option", "values" );
+					helper.changeAuthorlabel(authorlabel_doc_id, authorlabel_rev_id-1+authorlabel_values[0], authorlabel_author_id);
 					$( this ).dialog( "close" );
 				},
 				Cancel: function() {
@@ -1092,6 +1160,8 @@
 					.attr("y", function(d,i){
 						return i*(barHeight + 1);
 					})
+					// "rev" for the change authorlabel function
+					.attr("rev",index)
 					.attr("width", xScale.rangeBand())
 					.attr("height", barHeight)
 					.style("fill", function(d, i) {
@@ -1104,7 +1174,7 @@
 					.on("click", function(d) {
 						$('#authorlabel_change_doc_id').val(doc_id);
 						//$('#change_seg_id_author').val(d);
-						$('#authorlabel_change_rev_id').val(index);
+						$('#authorlabel_change_rev_id').val($(this).attr("rev"));
 						$('#authorlabel_dialog_form').dialog( "open" );	
 					});
 				}
@@ -1115,6 +1185,8 @@
 						return xScale(index);
 					})
 					.attr("y", 0)
+					// "rev" for the change authorlabel function
+					.attr("rev",index)
 					.attr("width", xScale.rangeBand())
 					.attr("height", barHeight)
 					.style("fill",  function(){
@@ -1127,7 +1199,7 @@
 					.on("click", function() {
 						$('#authorlabel_change_doc_id').val(doc_id);
 						//$('#change_seg_id_author').val(d);
-						$('#authorlabel_change_rev_id').val(index);
+						$('#authorlabel_change_rev_id').val($(this).attr("rev"));
 						$('#authorlabel_dialog_form').dialog( "open" );	
 					});
 				}
@@ -1363,6 +1435,8 @@
 						return xScale(new Date(rev.time));
 					})
 					.attr("y", function(d,i){return (barHeight+1)*i;})
+					// "rev" for the change authorlabel function
+					.attr("rev",index)
 					.attr("width", barWidth)
 					.attr("height", barHeight)
 					.style("fill", function(d, i) {
@@ -1374,7 +1448,7 @@
 					.on("click", function(d) {
 						$('#authorlabel_change_doc_id').val(doc_id);
 						//$('#change_seg_id_author').val(d);
-						$('#authorlabel_change_rev_id').val(index);
+						$('#authorlabel_change_rev_id').val($(this).attr("rev"));
 						$('#authorlabel_dialog_form').dialog("open");	
 					});
 				}
@@ -1386,6 +1460,8 @@
 						return xScale(new Date(rev.time));
 					})
 					.attr("y", 0)
+					// "rev" for the change authorlabel function
+					.attr("rev",index)
 					.attr("width", barWidth)
 					.attr("height", barHeight)
 					.style("fill",  function(){
@@ -1397,7 +1473,7 @@
 					.on("click", function() {
 						$('#authorlabel_change_doc_id').val(doc_id);
 						//$('#change_seg_id_author').val(d);
-						$('#authorlabel_change_rev_id').val(index);
+						$('#authorlabel_change_rev_id').val($(this).attr("rev"));
 						$('#authorlabel_dialog_form').dialog( "open" );	
 					});
 				}
