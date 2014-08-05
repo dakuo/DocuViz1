@@ -2,12 +2,10 @@
 <html>
 <head>
 	<title>{{ APPLICATION_NAME }}</title>
-
-	<link rel="stylesheet" href="http://kubiwork.com/othersites/docuviz/css/global2.css">
-
-  <link rel="stylesheet"
-  href="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/themes/start/jquery-ui.css"
-  type="text/css" media="all"></link>
+	
+	<link rel="stylesheet" href="//kubiwork.com/othersites/docuviz/css/global2.css"></link>
+	<link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/themes/start/jquery-ui.css" type="text/css" media="all"></link>
+	<link rel="stylesheet" href="//kubiwork.com/othersites/docuviz/css/jquery.multiselect.css"></link>
 
 	<script type="text/javascript">
 	//For GAPI load check
@@ -22,36 +20,19 @@
 		s.parentNode.insertBefore(po, s);
 
 	})();
-	/* Must be put after onApiLoad() function
-	(function() {
-		var po = document.createElement('script');
-		po.type = 'text/javascript';
-		po.async = true;
-		po.src = 'https://apis.google.com/js/api.js?onload=onApiLoad';
-		var s = document.getElementsByTagName('script')[0];
-		s.parentNode.insertBefore(po, s);
+	</script>
 
-	})();
-*/
-</script>
-
-<!-- JavaScript specific to this application that is not related to API calls -->
-<script
-src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"
-type="text/javascript"></script>
-<script
-src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"
-type="text/javascript"></script>
-<script
-src="//d3js.org/d3.v3.min.js" charset="utf-8"
-type="text/javascript"></script>
+	<!-- JavaScript specific to this application that is not related to API calls -->
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js" type="text/javascript"></script>
+	<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js" type="text/javascript"></script>
+	<script src="//d3js.org/d3.v3.min.js" charset="utf-8" type="text/javascript"></script>
+	<script src="//kubiwork.com/othersites/docuviz/js/jquery.multiselect.js" charset="utf-8" type="text/javascript"></script>
 </head>
 
 <body>
 
 	<div class="site-wrap">
     <section class="billboard">
-
       <div class="billboard__image-wrap">
         <div class="billboard__image center-y image--homePage">
           <img src="http://kubiwork.com/othersites/docuviz/billboard.png" alt="Billboard">
@@ -72,14 +53,10 @@ type="text/javascript"></script>
           </h2>
 
           <span class="content__description">
-            DocuViz visualizes how a document evolves in Google Docs, showing who did what when. A user connects DocuViz  with his Google Docs, selects a document and generates a visualization of the revision history of the document. A user can also interact with the diagram in various ways and save it. Potential uses of DocuViz include supporting collaborative writing, helping with students’ process in learning to write, interpreting collaboration patterns and evaluating participation. DocuViz was developed by the Hana Lab at UC Irvine, including Dakuo Wang, Jingwen Zhang, Judy and Gary Olson, and Trung Nguyen.
-
-						<p>
-							The ideas in Docuviz are inspired by History Flow by Fernanda Viegas and Martin Wattenberg. The program is written in XXXX, and incorporates the API from Google Docs, the D3.js visualization library by Michael Bostock, and the text diff algorithm by Eugene Myers.
-						</p>
-
+            DocuViz visualizes how a document evolves in Google Docs, showing who did what when. A user connects DocuViz with his Google Docs, selects a document and generates a visualization of the revision history of the document. A user can also interact with the diagram in various ways and save it. Potential uses of DocuViz include supporting collaborative writing, helping with students' process in learning to write, interpreting collaboration patterns and evaluating participation.DocuViz was developed by the Hana Lab at UC Irvine, including Dakuo Wang, Jingwen Zhang, Judy and Gary Olson, and Trung Nguyen.
+			</br>
+			The ideas in Docuviz are inspired by History Flow by Fernanda Viegas and Martin Wattenberg. The program is written in Java, and incorporates the API from Google Docs, the D3.js visualization library by Michael Bostock, and the text diff algorithm by Eugene Myers.
           </span>
-
 
           <!-- Google Log in Btn -->
           <div id="gConnect">
@@ -92,9 +69,6 @@ type="text/javascript"></script>
         </div>
 
         <div class="billboard__content center-y content--uploadPage">
-          <h2 class="content__title">
-            Instruction
-          </h2>
 
           <span class="content__description">
             Choose a Google Drive Document to see the revision history visualization
@@ -104,27 +78,25 @@ type="text/javascript"></script>
             Choose a document
           </a>
         </div>
-
       </div>
-
     </section>
 
 
-		<section class="loading-screen">
-		  <div class="content center">
-		    <progress class='progressBar' max='100' value='20'><span>0</span>%</progress>
-		    <h2>Loading...</h2>
-		  </div>
+	<section class="loading-screen">
+	  <div class="content center">
+	    <progress class='progressBar' max='100' value='20'><span>0</span>%</progress>
+	    <h2>Loading...</h2>
+	  </div>
 
-		  <!-- <div class="visual-log">
-		    <h2>Visualization Log</h2>
+	  <!-- <div class="visual-log">
+	    <h2>Visualization Log</h2>
 
-		    <div class="log__content">
-		      <span>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Repudiandae, quibusdam.</span>
-		    </div>
+	    <div class="log__content">
+	      <span>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Repudiandae, quibusdam.</span>
+	    </div>
 
-		  </div> -->
-		</section>
+	  </div> -->
+	</section>
 
 
     <section class="docuviz-controller">
@@ -133,56 +105,44 @@ type="text/javascript"></script>
     </section>
 
 
-		<div id="authOps" style="display: none">
+	<div id="authOps" style="display: none">
+		<div id="progressBar" style="display:none"></div>
+		<div id="slider" style="display:none">
+			<section class="chart-component">
+			  <section class="chart__controller">
+			    <div class="controller__btn-wrap">
+		             <input type="radio" id="equaldistance" name="radio" value="equaldistance" checked="checked">
+		             <label for="equaldistance" class="btn btn--style-2">Equal Distance</label>
 
-			<div id="progressBar" style="display:none"></div>
+				     <input type="radio" id="timescale" name="radio" value="timescale">
+				     <label for="timescale" class="btn btn--style-2">Time Scaled</label>
+			    </div>
 
-			<div id="slider" style="display:none">
+			    <div class="controller__slider">
+			      <div class="slider__label">
+			        <span id="amount">Rev 1</span>
+			      </div>
+			      <div class="slider-bar-wrap">
+			      </div>
+			    </div>
+			  </section>
+			</section>
+		</div>
+		<!-- The main Canvas for drawing the HistoryFlow  -->
+		<pre id="vizChart"></pre>
 
-				<section class="chart-component">
+  		<!-- Hidden <FORM> to submit the SVG data to the server, which will convert it to SVG/PDF/PNG downloadable file.
+  		The form is populated and submitted by the JavaScript below. -->
+  		<form id="svgform" method="post" action="saveImage">
+  			<input type="hidden" id="output_format" name="output_format" value="">
+  			<input type="hidden" id="data" name="data" value="">
+  		</form>
 
-				  <section class="chart__controller">
-
-				    <div class="controller__btn-wrap">
-              <input type="radio" id="equaldistance" name="radio" value="equaldistance" checked="checked">
-              <label for="equaldistance" class="btn btn--style-2">Equal Distance</label>
-
-				      <input type="radio" id="timescale" name="radio" value="timescale">
-				      <label for="timescale" class="btn btn--style-2">Time Scaled</label>
-				    </div>
-
-				    <div class="controller__slider">
-				      <div class="slider__label">
-				        <span id="amount">Rev 1</span>
-				      </div>
-
-				      <div class="slider-bar-wrap">
-				      </div>
-				    </div>
-
-				  </section>
-
-				</section>
-
-			</div>
-
-
-
-			<pre id="vizChart"></pre>
-
-
-	  		<!-- Hidden <FORM> to submit the SVG data to the server, which will convert it to SVG/PDF/PNG downloadable file.
-	  		The form is populated and submitted by the JavaScript below. -->
-	  		<form id="svgform" method="post" action="saveImage">
-	  			<input type="hidden" id="output_format" name="output_format" value="">
-	  			<input type="hidden" id="data" name="data" value="">
-	  		</form>
-
-	  		<!--
-	  		<h2>Authentication Logs</h2>
-	  		<pre id="authResult"></pre>
-	  	-->
-	  	<!--  Hidden Dialog FORM to submit the changing author request -->
+  		<!--
+  		<h2>Authentication Logs</h2>
+  		<pre id="authResult"></pre>
+  	-->
+	  	<!--  Hidden Dialog FORM to submit the changing author request by Dakuo -->
 	  	<div id="dialog_form" title="Change Segment Author">
 	  		<form>
 	  			<select id="author_list"></select>
@@ -191,19 +151,20 @@ type="text/javascript"></script>
 	  			<input type="hidden" id="change_rev_id" name="rev_id" value="">
 	  		</form>
 	  	</div>
-	  	<!--  Hidden Author Lableing Dialog FORM to submit the changing author labeling request -->
+	  	<!--  Hidden Author Lableing Dialog FORM to submit the changing author labeling request by Dakuo-->
 	  	<div id="authorlabel_dialog_form" title="Change Author Lable">
 	  		<form>
-	  			
+	  			<select id="authorlabel_author_list" multiple="multiple"></select>
 	  			<input type="hidden" id="authorlabel_change_doc_id" name="doc_id" value="">
 	  			<input type="hidden" id="authorlabel_change_rev_id" name="rev_id" value="">
 	  		</form>
 	  	</div>
-	  	<!-- Hidden Content dialog -->
+	  	<!-- Hidden Content dialog by Jingwen -->
 	  	<div id="content" title="Content">
 	  	</div>
-	  </div>
-	</div>
+  	
+  </div>
+</div>
 
 </body>
 <script type="text/javascript">
@@ -218,8 +179,9 @@ type="text/javascript"></script>
 		});
 	};
 
-
-
+	/**
+	 * The helper functions to post AJAX call to backend server, by Dakuo
+	 */	
 	var helper = (function() {
 		var authResult = undefined;
 		return {
@@ -237,10 +199,10 @@ type="text/javascript"></script>
 				// KUBI Components
 				// $('.billboard').hide();
 				$('.billboard__content-wrap').addClass('isActive');
-        $('.billboard__image-wrap').addClass('isActive');
+        		$('.billboard__image-wrap').addClass('isActive');
 
 				$('.loading-screen').hide();
-        $('.docuviz-controller').hide();
+        		$('.docuviz-controller').hide();
 
 				// $('#authResult').html('Auth Result:<br/>');
 				// for ( var field in authResult) {
@@ -316,7 +278,7 @@ type="text/javascript"></script>
 						//$('#visiblePeople').empty();
 
 						$('#authResult').empty();
-            // $('.log__content').empty();
+            			// $('.log__content').empty();
 						$('#vizChart').empty();
 
 						$('#slider').hide();
@@ -361,8 +323,8 @@ type="text/javascript"></script>
 				//For GAPI load check
 				if (pickerApiLoaded && oauthToken) {
 
-          var docsView = new google.picker.DocsView(google.picker.ViewId.DOCUMENTS);
-          docsView.setIncludeFolders(true);
+          			var docsView = new google.picker.DocsView(google.picker.ViewId.DOCUMENTS);
+          			docsView.setIncludeFolders(true);
 
 					var picker = new google.picker.PickerBuilder()
 					.enableFeature(google.picker.Feature.NAV_HIDDEN)
@@ -377,7 +339,7 @@ type="text/javascript"></script>
 											// Deal with vizChart
 											$("#slider").hide();
 
-                      $('.docuviz-controller').hide();
+                      						$('.docuviz-controller').hide();
 
 											$("#vizChart").empty();
 											// $('.log__content').empty();
@@ -392,13 +354,14 @@ type="text/javascript"></script>
 											$('.loading-screen').show();
 
 											$("#author_list").empty();
+											$("#authorlabel_author_list").empty();
 
-                      // Hide Billboard
-                      $('.billboard').hide();
+						                    // Hide Billboard
+						                    $('.billboard').hide();
 
 											/* [~] Hide Google Upload */
 											$('.billboard__content-wrap').removeClass('isActive');
-                      $('.billboard__image-wrap').removeClass('isActive');
+                      						$('.billboard__image-wrap').removeClass('isActive');
 
 											var doc = data[google.picker.Response.DOCUMENTS][0];
 											doc_id = doc[google.picker.Document.ID];
@@ -431,10 +394,8 @@ type="text/javascript"></script>
 			 		console.log("Start Retrieving Revisions");
 			 		console.log(result);
 
-
 			 		helper.pollingTask(doc_id, doc_name, 'download');
 			 	});
-
 			 },
 
 			/**
@@ -443,8 +404,6 @@ type="text/javascript"></script>
 			 diffRevisions : function(doc_id, doc_name) {
 
 			 	// $('.log__content').append('<p>Diff Result for Document: ' + doc_name + '</p>');
-
-
 			 	$.post(window.location.href + 'diffrevisions', {
 			 		'doc_id' : doc_id,
 			 		'doc_name' : doc_name
@@ -486,7 +445,6 @@ type="text/javascript"></script>
 								// TODO should be initiated in upper level not inside polling?
 								// initiate the diff algorithm
 								helper.diffRevisions(doc_id, doc_name);
-
 								return;
 							}
 							// $('.log__content').append('Downloading ' + result + '%');
@@ -496,7 +454,7 @@ type="text/javascript"></script>
 								$('.createPicker2').attr("disabled", false);
 								$('#progressBar').hide();
 								$('#saveButton').attr("disabled",false);
-                // $('.log__content').append('Diff Done! <br/>');
+                				// $('.log__content').append('Diff Done! <br/>');
 
 								// TODO should be initiated in upper level not inside polling?
 								// initiate the viz
@@ -504,34 +462,32 @@ type="text/javascript"></script>
 								return;
 							}
 
-              // $('.log__content').append('Diff-ing ' + result + '%. <br/>');
-
+              				// $('.log__content').append('Diff-ing ' + result + '%. <br/>');
 						}
 
 						helper.pollingTask(doc_id, doc_name, mode);
 					}
 				});
-},
+			},
 			/**
 			 * Retrieves and renders the history flow.
 			 */
 			 renderVisualization : function(doc_id, doc_name) {
-        $('.log__content').empty();
-			 	$('#vizChart').empty();
-
-        $('.docuviz-controller').show();
-			 	$('.loading-screen').hide();
-
-
-        // Remove bug from Slider Bar when switching document
-        $('.slider-bar-wrap').empty();
-
-			 	$('#slider').hide();
-
-        // $('.log__content').append('Viz Result for Document: ' + doc_name + '<br/>');
+		        $('.log__content').empty();
+				$('#vizChart').empty();
+		
+		        $('.docuviz-controller').show();
+				$('.loading-screen').hide();
+		
+		
+		        // Remove bug from Slider Bar when switching document
+		        $('.slider-bar-wrap').empty();
+		
+				$('#slider').hide();
+		
+		        // $('.log__content').append('Viz Result for Document: ' + doc_name + '<br/>');
 
 			 	$('#change_doc_id').val(doc_id);
-
 
 				$.ajax({
 					type : 'POST',
@@ -539,142 +495,139 @@ type="text/javascript"></script>
 					contentType : 'application/octet-stream; charset=utf-8',
 					success : function(result) {
 						console.log("Start Viz Revisions");
+                		$('.log__content').append(result + ' <br/>');
 
-                $('.log__content').append(result + ' <br/>');
+						/*
+						 ** To Prepare the SVG Convas for drawing the history flow
+						 */
+						 var width = 1280, height = 900, margin = {
+						 	'top' : 20,
+						 	'right' : 10,
+						 	'bottom' : 10,
+						 	'left' : 10
+						 };
 
-								/*
-								 ** To Prepare the SVG Convas for drawing the history flow
-								 */
-								 var width = 1280, height = 900, margin = {
-								 	'top' : 20,
-								 	'right' : 10,
-								 	'bottom' : 10,
-								 	'left' : 10
-								 };
+						 var svg = d3.select("#vizChart").append("svg")
+						 .attr(
+						 	"width",
+						 	width + margin.left
+						 	+ margin.right)
+						 .attr(
+						 	"height",
+						 	height + margin.top
+						 	+ margin.bottom)
+						 .attr(
+						 	"margin-left",
+						 	margin.left
+						 	)
+						 .attr(
+						 	"margin-top",
+						 	margin.top
+						 	);
 
-								 var svg = d3.select("#vizChart").append("svg")
-								 .attr(
-								 	"width",
-								 	width + margin.left
-								 	+ margin.right)
-								 .attr(
-								 	"height",
-								 	height + margin.top
-								 	+ margin.bottom)
-								 .attr(
-								 	"margin-left",
-								 	margin.left
-								 	)
-								 .attr(
-								 	"margin-top",
-								 	margin.top
-								 	);
+						/*
+						 * Draw the history flow
+						 */
+						 var dataset = $.parseJSON(result);
+						 historyflow(svg, width, height, dataset);
 
+						 var num_revisions = dataset.revisions.length;
 
-								/*
-								 * Draw the history flow
-								 */
-								 var dataset = $.parseJSON(result);
-								 historyflow(svg, width, height, dataset);
+		                 /*
+		                  * By Kubi: Another solution to remove Bug from Slider Bar when switching Document
+		                  */
+		                 $('.slider-bar-wrap').append('<div id="sliderBar" class="center-y slider-bar"></div>');
 
-								 var num_revisions = dataset.revisions.length;
+						 $("#sliderBar").slider({
+						 	create: removeClassesCreateHandler,
+						 	range: true,
+						 	min: 1,
+						 	max: num_revisions,
+						 	values: [1,num_revisions],
+						 	slide: function( event, ui ) {
+					    		// revision start from 0, so we need to change the index minus one
+					    		$( "#amount" ).text( "Rev " + ui.values[ 0 ] + " - Rev " + ui.values[ 1 ] );
 
-                 /*
-                  * By Kubi: Another solution to remove Bug from Slider Bar when switching Document
-                  */
-                 $('.slider-bar-wrap').append('<div id="sliderBar" class="center-y slider-bar"></div>');
+								//TODO change ajax to post
+								$.ajax({
+									type : 'POST',
+									url : window.location.href + 'viz?doc_id=' + doc_id+'&end_rev_index='+(ui.values[ 1 ]-1) +'&start_rev_index='+(ui.values[ 0 ]-1),
+									contentType : 'application/octet-stream; charset=utf-8',
+									success : function(result) {
+										console.log("Start Viz Revisions");
+                              			$('.log__content').append(result + ' <br/>');
 
-								 $("#sliderBar")
-								 .slider({
-								 	create: removeClassesCreateHandler,
-								 	range: true,
-								 	min: 1,
-								 	max: num_revisions,
-								 	values: [1,num_revisions],
-								 	slide: function( event, ui ) {
-								    	  // revision start from 0, so we need to change the index minus one
+										/*
+										 ** To Prepare the SVG Convas for drawing the history flow
+										 */
+										 var width = 1280, height = 900, margin = {
+										 	'top' : 20,
+										 	'right' : 10,
+										 	'bottom' : 10,
+										 	'left' : 10
+										 };
 
-								    	  $( "#amount" ).text( "Rev " + ui.values[ 0 ] + " - Rev " + ui.values[ 1 ] );
+										 $('#vizChart').fadeOut(300,function(){
+										 	$('#vizChart').empty();
+										 	var svg = d3.select("#vizChart").append("svg")
+										 	.attr(
+										 		"width",
+										 		width + margin.left
+										 		+ margin.right)
+										 	.attr(
+										 		"height",
+										 		height + margin.top
+										 		+ margin.bottom)
+										 	.attr(
+										 		"margin-left",
+										 		margin.left
+										 		)
+										 	.attr(
+										 		"margin-top",
+										 		margin.top
+										 		);
+											/*
+											 * Draw the history flow
+											 */
+											 var dataset = $.parseJSON(result);
+											 var timescale_flag = $('input[name=radio]:checked').val();
 
-										//TODO change ajax to post
-										$.ajax({
-											type : 'POST',
-											url : window.location.href + 'viz?doc_id=' + doc_id+'&end_rev_index='+(ui.values[ 1 ]-1) +'&start_rev_index='+(ui.values[ 0 ]-1),
-											contentType : 'application/octet-stream; charset=utf-8',
-											success : function(result) {
-												console.log("Start Viz Revisions");
-                              $('.log__content').append(result + ' <br/>');
+											 if(timescale_flag=="timescale")
+											 	historyflow(svg, width, height, dataset, true);
+											 else
+											 	historyflow(svg, width, height, dataset, false);
+											 $('#vizChart').fadeIn(300);
+											});
+										}
+									});
+								}
+							});
+						 	// END of the Slider
 
-														/*
-														 ** To Prepare the SVG Convas for drawing the history flow
-														 */
-														 var width = 1280, height = 900, margin = {
-														 	'top' : 20,
-														 	'right' : 10,
-														 	'bottom' : 10,
-														 	'left' : 10
-														 };
+							$( "#amount" ).text( "Rev " + $( "#sliderBar" ).slider( "values", 0 ) +
+								" - Rev " + $( "#sliderBar" ).slider( "values",  1) );
+							$("#slider").show();
 
-														 $('#vizChart').fadeOut(300,function(){
-														 	$('#vizChart').empty();
-														 	var svg = d3.select("#vizChart").append("svg")
-														 	.attr(
-														 		"width",
-														 		width + margin.left
-														 		+ margin.right)
-														 	.attr(
-														 		"height",
-														 		height + margin.top
-														 		+ margin.bottom)
-														 	.attr(
-														 		"margin-left",
-														 		margin.left
-														 		)
-														 	.attr(
-														 		"margin-top",
-														 		margin.top
-														 		);
-															/*
-															 * Draw the history flow
-															 */
-															 var dataset = $.parseJSON(result);
-															 var timescale_flag = $('input[name=radio]:checked').val();
-
-															 if(timescale_flag=="timescale")
-															 	historyflow(svg, width, height, dataset, true);
-															 else
-															 	historyflow(svg, width, height, dataset, false);
-															 $('#vizChart').fadeIn(300);
-															});
-
-}
-});
-}
-});
-
-$( "#amount" ).text( "Rev " + $( "#sliderBar" ).slider( "values", 0 ) +
-	" - Rev " + $( "#sliderBar" ).slider( "values",  1) );
-$("#slider").show();
-
-},
-processData : false,
-data : this.authResult.code
-});
-
-$('#authOps').show('slow');
-},
+						},
+						// END of AJAX call success function
+						processData : false,
+						data : this.authResult.code
+					});
+					// END of AJAX call
+					$('#authOps').show('slow');
+				},
+				// END of renderVisualization funciton
 
 			/*
 			 *	get the segment content data
 			 *
 			 */
 			 retrieveSegmentContent : function(doc_id, segment_id) {
-     //    $('.log__content').empty();
+     			// $('.log__content').empty();
 
 			 	// $('.log__content').append(
 			 	// 	'Selected Segment #' + segment_id
 			 	// 	+ ' Content is: <br/>');
-
 
 			 	var doOk = function() {
 			 		$("#content").dialog("close");
@@ -700,7 +653,6 @@ $('#authOps').show('slow');
 			 			console.log("Retrieved the Segment " + segment_id
 			 				+ " Result ");
 
-
 			 			// $('.log__content').append(result + ' <br/>');
 			 			$('#content').html(result+'<span></span>');
 			 		},
@@ -710,10 +662,7 @@ $('#authOps').show('slow');
 
 			 	$('#content').removeClass('ui-dialog-buttonpane ui-widget-content ui-helper-clearfix');
 			 	$('#content').dialog("open");
-
 			 },
-
-
 
 			/*
 			 *	change the segment and all its children segments' author
@@ -729,68 +678,63 @@ $('#authOps').show('slow');
 			 		success : function(result) {
 			 			console.log("revision id: "+revision_id);
 			 			// $('.log__content').append(result + ' <br/>');
-
 			 		},
 			 		processData : false,
 			 		data : this.authResult.code
 			 	});
 
-
-
-
 			 	$('#vizChart').fadeOut(300,function(){
 			 		$('#vizChart').empty();
-									/*
-									 ** To Prepare the SVG Convas for drawing the history flow
-									 */
-									 var width = 1280, height = 900, margin = {
-									 	'top' : 20,
-									 	'right' : 10,
-									 	'bottom' : 10,
-									 	'left' : 10
-									 };
-									 var svg = d3.select("#vizChart").append("svg")
-									 .attr(
-									 	"width",
-									 	width + margin.left
-									 	+ margin.right)
-									 .attr(
-									 	"height",
-									 	height + margin.top
-									 	+ margin.bottom)
-									 .attr(
-									 	"margin-left",
-									 	margin.left
-									 	)
-									 .attr(
-									 	"margin-top",
-									 	margin.top
-									 	);
-									/*
-									 * Draw the history flow
-									 */
-									// refresh the chart
-									$.ajax({
-										type : 'POST',
-										url : window.location.href + 'viz?doc_id=' + doc_id,
-										contentType : 'application/octet-stream; charset=utf-8',
-										success : function(result) {
-											console.log("Start Redraw Visualization");
+					/*
+					 ** To Prepare the SVG Convas for drawing the history flow
+					 */
+					 var width = 1280, height = 900, margin = {
+					 	'top' : 20,
+					 	'right' : 10,
+					 	'bottom' : 10,
+					 	'left' : 10
+					 };
+					 var svg = d3.select("#vizChart").append("svg")
+					 .attr(
+					 	"width",
+					 	width + margin.left
+					 	+ margin.right)
+					 .attr(
+					 	"height",
+					 	height + margin.top
+					 	+ margin.bottom)
+					 .attr(
+					 	"margin-left",
+					 	margin.left
+					 	)
+					 .attr(
+					 	"margin-top",
+					 	margin.top
+					 	);
+					/*
+					 * Draw the history flow
+					 * refresh the chart
+					 */
+					$.ajax({
+						type : 'POST',
+						url : window.location.href + 'viz?doc_id=' + doc_id,
+						contentType : 'application/octet-stream; charset=utf-8',
+						success : function(result) {
+							console.log("Start Redraw Visualization");
 
-											var dataset = $.parseJSON(result);
-											historyflow(svg, width, height, dataset);
-											$('#vizChart').fadeIn(300);
-										}
-									});
+							var dataset = $.parseJSON(result);
+							historyflow(svg, width, height, dataset);
+							$('#vizChart').fadeIn(300);
+						}
+					});
+				});
+			},
 
-
-								});
-
-},
-
-			// save the svg object to image locally
+			/*
+			 * save the svg object to image locally
+			 */
 			saveImage : function() {
-        // $('.log__content').empty();
+        		// $('.log__content').empty();
 				// $('.log__content').append('Save Image <br/>');
 
 				d3.select("svg").attr("version", 1.1).attr("xmlns","http://www.w3.org/2000/svg");
@@ -803,212 +747,204 @@ $('#authOps').show('slow');
 				form['output_format'].value = "";
 				form['data'].value = svg_xml ;
 				form.submit();
-
 			}
 		};
 	})();
+	// END of helper functions
 
-/**
- *  UI
- */
+	/**
+	 *  UI
+	 */
 
 	/**
 	 * Perform jQuery initialization and check to ensure that you updated your
 	 * client ID.
 	 */
-	 $(document)
-	 .ready(
-	 	function() {
+	 $(document).ready(function() {
 	 		/* By Kubi: Hide Google Upload */
-      $('.billboard__content-wrap').removeClass('isActive');
-      $('.billboard__image-wrap').removeClass('isActive');
+		$('.billboard__content-wrap').removeClass('isActive');
+		$('.billboard__image-wrap').removeClass('isActive');
 
-	 		$(".loading-screen").hide();
-      $(".docuviz-controller").hide();
+ 		$(".loading-screen").hide();
+      	$(".docuviz-controller").hide();
 
-	 		$('input[name=radio]').click(function() {
-	 			var value = $('input[name=radio]:checked').val();
+ 		$('input[name=radio]').click(function() {
+			var value = $('input[name=radio]:checked').val();
 
-	 			if(value=="timescale")
-	 			{
-	 				$('#vizChart').fadeOut(300,function(){
-	 					var doc_id = $('#change_doc_id').val();
+ 			if(value=="timescale")
+ 			{
+ 				$('#vizChart').fadeOut(300,function(){
+					var doc_id = $('#change_doc_id').val();
 
-	 					$('#vizChart').empty();
-									/*
-									 ** To Prepare the SVG Convas for drawing the history flow
-									 */
-									 var width = 1280, height = 900, margin = {
-									 	'top' : 20,
-									 	'right' : 10,
-									 	'bottom' : 10,
-									 	'left' : 10
-									 };
-									 var svg = d3.select("#vizChart").append("svg")
-									 .attr(
-									 	"width",
-									 	width + margin.left
-									 	+ margin.right)
-									 .attr(
-									 	"height",
-									 	height + margin.top
-									 	+ margin.bottom)
-									 .attr(
-									 	"margin-left",
-									 	margin.left
-									 	)
-									 .attr(
-									 	"margin-top",
-									 	margin.top
-									 	);
-									/*
-									 * Draw the history flow
-									 */
-									// refresh the chart
-									$.ajax({
-										type : 'POST',
-										url : window.location.href + 'viz?doc_id=' + doc_id,
-										contentType : 'application/octet-stream; charset=utf-8',
-										success : function(result) {
-											console.log("Start Redraw Visualization");
+ 					$('#vizChart').empty();
+					/*
+					 ** To Prepare the SVG Convas for drawing the history flow
+					 */
+					 var width = 1280, height = 900, margin = {
+					 	'top' : 20,
+					 	'right' : 10,
+					 	'bottom' : 10,
+					 	'left' : 10
+					 };
+					 var svg = d3.select("#vizChart").append("svg")
+					 .attr(
+					 	"width",
+					 	width + margin.left
+					 	+ margin.right)
+					 .attr(
+					 	"height",
+					 	height + margin.top
+					 	+ margin.bottom)
+					 .attr(
+					 	"margin-left",
+					 	margin.left
+					 	)
+					 .attr(
+					 	"margin-top",
+					 	margin.top
+					 	);
+					/*
+					 * Draw the history flow
+					 * refresh the chart
+					 */
+					$.ajax({
+						type : 'POST',
+						url : window.location.href + 'viz?doc_id=' + doc_id,
+						contentType : 'application/octet-stream; charset=utf-8',
+						success : function(result) {
+							console.log("Start Redraw Visualization");
 
-											var dataset = $.parseJSON(result);
-											historyflow(svg, width, height, dataset, true);
-											$('#vizChart').fadeIn(300);
-										}
-									});
+							var dataset = $.parseJSON(result);
+							historyflow(svg, width, height, dataset, true);
+							$('#vizChart').fadeIn(300);
+						}
+					});
+				});
+			}
+			else{
+				$('#vizChart').fadeOut(300,function(){
+					$('#vizChart').empty();
+					var doc_id = $('#change_doc_id').val();
+					/*
+					 ** To Prepare the SVG Convas for drawing the history flow
+					 */
+					 var width = 1280, height = 900, margin = {
+					 	'top' : 20,
+					 	'right' : 10,
+					 	'bottom' : 10,
+					 	'left' : 10
+					 };
+					 var svg = d3.select("#vizChart").append("svg")
+					 .attr(
+					 	"width",
+					 	width + margin.left
+					 	+ margin.right)
+					 .attr(
+					 	"height",
+					 	height + margin.top
+					 	+ margin.bottom)
+					 .attr(
+					 	"margin-left",
+					 	margin.left
+					 	)
+					 .attr(
+					 	"margin-top",
+					 	margin.top
+					 	);
+					/*
+					 * Draw the history flow
+					 */
+					// refresh the chart
+					$.ajax({
+						type : 'POST',
+						url : window.location.href + 'viz?doc_id=' + doc_id,
+						contentType : 'application/octet-stream; charset=utf-8',
+						success : function(result) {
+							console.log("Start Redraw Visualization");
 
-
-								});
-}
-else{
-	$('#vizChart').fadeOut(300,function(){
-		$('#vizChart').empty();
-		var doc_id = $('#change_doc_id').val();
-									/*
-									 ** To Prepare the SVG Convas for drawing the history flow
-									 */
-									 var width = 1280, height = 900, margin = {
-									 	'top' : 20,
-									 	'right' : 10,
-									 	'bottom' : 10,
-									 	'left' : 10
-									 };
-									 var svg = d3.select("#vizChart").append("svg")
-									 .attr(
-									 	"width",
-									 	width + margin.left
-									 	+ margin.right)
-									 .attr(
-									 	"height",
-									 	height + margin.top
-									 	+ margin.bottom)
-									 .attr(
-									 	"margin-left",
-									 	margin.left
-									 	)
-									 .attr(
-									 	"margin-top",
-									 	margin.top
-									 	);
-									/*
-									 * Draw the history flow
-									 */
-									// refresh the chart
-									$.ajax({
-										type : 'POST',
-										url : window.location.href + 'viz?doc_id=' + doc_id,
-										contentType : 'application/octet-stream; charset=utf-8',
-										success : function(result) {
-											console.log("Start Redraw Visualization");
-
-											var dataset = $.parseJSON(result);
-											historyflow(svg, width, height, dataset);
-											$('#vizChart').fadeIn(300);
-										}
-									});
-
-
-								});
-}
-});
+							var dataset = $.parseJSON(result);
+							historyflow(svg, width, height, dataset);
+							$('#vizChart').fadeIn(300);
+						}
+					});
+				});
+			}
+		});
 
 
-/*
- * Fire an event after user chooses a file
- */
-$('.createPicker2').click(createPicker);
+		/*
+		 * Fire an event after user chooses a file
+		 */
+		$('.createPicker2').click(createPicker);
+		$('#saveButton').attr("disabled", true);
+		$('#saveButton').click(helper.saveImage);
 
-$('#saveButton').attr("disabled", true);
+		/**
+		 * Deal with progress bar
+		 */
+		$('.progressBar').val(0);
 
-$('#saveButton').click(helper.saveImage);
+		/*
+		 * Initiate the change author pop-up window
+		 */
+		$( "#dialog_form" ).dialog({
+			autoOpen: false,
+			height: 300,
+			width: 500,
+			modal: true,
+			buttons: {
+				"Show Content": function() {
+					var doc_id = $('#change_doc_id').val();
+					var seg_id = $('#change_seg_id').val();
+					helper.retrieveSegmentContent(doc_id, seg_id);
+					$( this ).dialog( "close" );
+				},
+				"Change Author": function() {
+					var doc_id = $('#change_doc_id').val();
+					var seg_id = $('#change_seg_id').val();
+					var author_id = $('#author_list').val();
+					var revision_id = $('#change_rev_id').val();
+					helper.changeSegmentAuthor(doc_id, revision_id, seg_id, author_id);
+					$( this ).dialog( "close" );
+				},
+				Cancel: function() {
+					$( this ).dialog( "close" );
+				}
+			}
+		});
 
-/**
- * Deal with progress bar
- */
-$('.progressBar').val(0);
+		/*
+		 * Initiate the authorlabel function pop-up window
+		 */
+		$( "#authorlabel_dialog_form" ).dialog({
+			autoOpen: false,
+			height: 300,
+			width: 500,
+			modal: true,
+			buttons: {
+				"Change Author Label": function() {
+					var doc_id = $('#authorlabel_change_doc_id').val();
+					//var seg_id = $('#authorlabel_change_seg_id').val();
+					var author_id = $('#authorlabel_author_list').val();
+					var revision_id = $('#authorlabel_change_rev_id').val();
+					//helper.changeSegmentAuthor(doc_id, revision_id, seg_id, author_id);
+					$( this ).dialog( "close" );
+				},
+				Cancel: function() {
+					$( this ).dialog( "close" );
+				}
+			}
+		});
 
-/*
- * Initiate the change author pop-up window
- */
-$( "#dialog_form" ).dialog({
-	autoOpen: false,
-	height: 300,
-	width: 500,
-	modal: true,
-	buttons: {
-		"Show Content": function() {
-			var doc_id = $('#change_doc_id').val();
-			var seg_id = $('#change_seg_id').val();
-			helper.retrieveSegmentContent(doc_id, seg_id);
-			$( this ).dialog( "close" );
-		},
-		"Change Author": function() {
-			var doc_id = $('#change_doc_id').val();
-			var seg_id = $('#change_seg_id').val();
-			var author_id = $('#author_list').val();
-			var revision_id = $('#change_rev_id').val();
-			helper.changeSegmentAuthor(doc_id, revision_id, seg_id, author_id);
-			$( this ).dialog( "close" );
-		},
-		Cancel: function() {
-			$( this ).dialog( "close" );
+		if($('[data-clientid="YOUR_CLIENT_ID"]').length > 0) {
+		 	alert('This sample requires your OAuth credentials (client ID) '
+		 		+ 'from the Google APIs console:\n'
+		 		+ '    https://code.google.com/apis/console/#:access\n\n'
+		 		+ 'Find and replace YOUR_CLIENT_ID with your client ID and '
+		 		+ 'YOUR_CLIENT_SECRET with your client secret in the project sources.');
 		}
-	}
-});
-
-/*
- * Initiate the authorlabel function pop-up window
- */
-$( "#authorlabel_dialog_form" ).dialog({
-	autoOpen: false,
-	height: 300,
-	width: 500,
-	modal: true,
-	buttons: {
-		"Confirm": function() {
-			var doc_id = $('#authorlabel_change_doc_id').val();
-			//var seg_id = $('#authorlabel_change_seg_id').val();
-			//var author_id = $('#author_list').val();
-			var revision_id = $('#authorlabel_change_rev_id').val();
-			//helper.changeSegmentAuthor(doc_id, revision_id, seg_id, author_id);
-			$( this ).dialog( "close" );
-		},
-		Cancel: function() {
-			$( this ).dialog( "close" );
-		}
-	}
-});
-
- if ($('[data-clientid="YOUR_CLIENT_ID"]').length > 0) {
- 	alert('This sample requires your OAuth credentials (client ID) '
- 		+ 'from the Google APIs console:\n'
- 		+ '    https://code.google.com/apis/console/#:access\n\n'
- 		+ 'Find and replace YOUR_CLIENT_ID with your client ID and '
- 		+ 'YOUR_CLIENT_SECRET with your client secret in the project sources.');
- }
-
-});
+	});
+	// END of document.ready() function
 
 	/**
 	 * Calls the helper method that handles the authentication flow.
@@ -1028,18 +964,14 @@ $( "#authorlabel_dialog_form" ).dialog({
 	 }
 
 	 function createPicker() {
-
 		$('.progressBar').val(0);
-
 		console.log("point1");
 		helper.createPicker(helper.authResult.access_token);
-
 		return false;
 	}
 
-	// A simple rendering implementation.
+	// HistoryFlow Visualization Code
 	function historyflow(svg, width, height, dataset, timescale_flag) {
-
 		var color = d3.scale.category10(), margin = {
 			'top' : 150,
 			'right' : 20,
@@ -1057,11 +989,19 @@ $( "#authorlabel_dialog_form" ).dialog({
 		 var doc_name = dataset.docName;
 
 		 timescale_flag = typeof timescale_flag !== 'undefined' ? timescale_flag : false;
-
-		 var authorOptions = d3.select("#author_list")
+		
+		 // update the author_list for change segment author function
+		 d3.select("#author_list")
 		 .selectAll("option").data(authors).enter().append("option")
 		 .attr("value", function(d,i){ return i; })
-		 .text(function(d){ return d; })
+		 .text(function(d){ return d; });
+		 
+		 // update the authorlabel_author_list for change authorlabel function
+		 d3.select("#authorlabel_author_list")
+		 .selectAll("option").data(authors).enter().append("option")
+		 .attr("value", function(d,i){ return i; })
+		 .text(function(d){ return d; });
+	     $('#authorlabel_author_list').multiselect();
 
 		 var yScale = d3.scale.linear().domain(
 		 	[ 0, d3.max(revisions, function(d) {
@@ -1079,7 +1019,7 @@ $( "#authorlabel_dialog_form" ).dialog({
 					return d.revisionLength;
 				}));
 
-		 var legend = svg.selectAll("authorGroup").data(authors).enter().append(
+		var legend = svg.selectAll("authorGroup").data(authors).enter().append(
 		 	"rect").attr("class", "segment").attr("x", 0).attr("y",
 		 	function(d, i) {
 		 		return i * (barHeight + 5 );
@@ -1116,530 +1056,541 @@ $( "#authorlabel_dialog_form" ).dialog({
 							+ "," + (height - margin.bottom + (barHeight ) ) + ")");
 
 		var titleText = svg.append("text").attr("x",11).attr("y",16).attr("font-family", "sans-serif").attr("font-size", "20px").text(""+doc_name);
-
-		if(timescale_flag==false){
-
-			var xScale = d3.scale.ordinal().domain(d3.range(revisions.length))
-			.rangeRoundBands([ 0, width - margin.left - margin.right ], 0.5);
-
-
-		// time
-		var dateLabel2 = svg.selectAll("dateLabel2").data(revisions).enter()
-		.append("text").attr("x", function(d, i) {
-			return 0;
-		}).attr("y", function(d, i) {
-			return xScale(i);
-		}).attr("font-family", "sans-serif")
-		.attr("font-size", "14px")
-		.attr("fill", "black")
-		.html(
-			function(d) {
-				return d.time.substring(5, 10) + " " + d.time.substring(11, 16);
-			})
-		.attr("transform","translate(" + (margin.left + 15) + "," + (margin.top- (5*barHeight)) + ") rotate(-90)");
-
-		/**
-		 * Draw the multi author labl on top of each one
+		
+		/*
+		 * Equal Distance Rendering
 		 */
-		 for(var index = 0; index< revisions.length; index++){
-		 	var rev = revisions[index];
-			//deal with multi author
-			if($.isArray(rev.authorId)){
-				svg.selectAll("authorLabel_"+index).data(rev.authorId).enter().append("rect")
-				.attr("x", function() {
-					return xScale(index);
+		if(timescale_flag==false){
+			var xScale = d3.scale.ordinal().domain(d3.range(revisions.length)).rangeRoundBands([ 0, width - margin.left - margin.right ], 0.5);
+
+			// time
+			var dateLabel2 = svg.selectAll("dateLabel2").data(revisions).enter()
+			.append("text").attr("x", function(d, i) {
+				return 0;
+			}).attr("y", function(d, i) {
+				return xScale(i);
+			}).attr("font-family", "sans-serif")
+			.attr("font-size", "14px")
+			.attr("fill", "black")
+			.html(
+				function(d) {
+					return d.time.substring(5, 10) + " " + d.time.substring(11, 16);
 				})
-				.attr("y", function(d,i){
-					return i*(barHeight + 1);
+			.attr("transform","translate(" + (margin.left + 15) + "," + (margin.top- (5*barHeight)) + ") rotate(-90)");
+
+			/**
+			 * Draw the multi author labl on top of each one
+			 */
+			 for(var index = 0; index< revisions.length; index++){
+			 	var rev = revisions[index];
+				//deal with multi author
+				if($.isArray(rev.authorId)){
+					svg.selectAll("authorLabel_"+index).data(rev.authorId).enter().append("rect")
+					.attr("x", function() {
+						return xScale(index);
+					})
+					.attr("y", function(d,i){
+						return i*(barHeight + 1);
+					})
+					.attr("width", xScale.rangeBand())
+					.attr("height", barHeight)
+					.style("fill", function(d, i) {
+						return color(d);
+					})
+					.attr(
+						"transform", "translate(" + margin.left + "," + (margin.top - (5*barHeight))
+							+ ")")
+					//work on the "authors on but not doing editing thing, changes will only effect the author label"
+					.on("click", function(d) {
+						$('#authorlabel_change_doc_id').val(doc_id);
+						//$('#change_seg_id_author').val(d);
+						$('#authorlabel_change_rev_id').val(index);
+						$('#authorlabel_dialog_form').dialog( "open" );	
+					});
+				}
+				//deal with the old version single author heritage
+				else{
+					svg.append("rect")
+					.attr("x", function() {
+						return xScale(index);
+					})
+					.attr("y", 0)
+					.attr("width", xScale.rangeBand())
+					.attr("height", barHeight)
+					.style("fill",  function(){
+						return color(rev.authorId);
+					})
+					.attr(
+						"transform", "translate(" + margin.left + "," + (margin.top - (5*barHeight))
+							+ ")")
+					//work on the "authors on but not doing editing thing, changes will only effect the author label"
+					.on("click", function() {
+						$('#authorlabel_change_doc_id').val(doc_id);
+						//$('#change_seg_id_author').val(d);
+						$('#authorlabel_change_rev_id').val(index);
+						$('#authorlabel_dialog_form').dialog( "open" );	
+					});
+				}
+			}
+
+
+			// segment rectangles
+			var groups = svg.selectAll("rectGroup").data(revisions).enter().append(
+				"g").attr("class", "rectGroup").attr("transform",
+				"translate(" + margin.left + "," + margin.top + ")");
+	
+			var revisionIndex = -1, revisionIndex2 = -1; //one for calculating x; one for calculating rev_index
+			var accumulateSegLength = 0;
+			var displayGroups = function(groups, start, end) {
+				return groups
+				.filter(function(d, i) {
+					return i >= start && i <= end;
 				})
-				.attr("width", xScale.rangeBand())
-				.attr("height", barHeight)
-				.style("fill", function(d, i) {
-					return color(d);
+				.selectAll("rect")
+				.data(function(d) {
+					if (d.segments.length != 0)
+						return d.segments;
+					else
+						return [ -1 ];
+				})
+				.enter()
+				.append("rect")
+				.attr("class", "segment")
+				.attr("x", function(d, i) {
+					if (i == 0)
+						revisionIndex++;
+					return xScale(revisionIndex);
+				})
+				.attr("rev",function(d, i) {
+					if (i == 0)
+						revisionIndex2++;
+					return revisionIndex2;
 				})
 				.attr(
-					"transform", "translate(" + margin.left + "," + (margin.top - (5*barHeight))
-						+ ")");
-			}
-			//deal with the old version single author heritage
-			else{
-				svg.append("rect")
-				.attr("x", function() {
-					return xScale(index);
-				})
-				.attr("y", 0)
-				.attr("width", xScale.rangeBand())
-				.attr("height", barHeight)
-				.style("fill",  function(){
-					return color(rev.authorId);
-				})
-				.attr(
-					"transform", "translate(" + margin.left + "," + (margin.top - (5*barHeight))
-						+ ")");
-			}
-		}
-
-
-		// segment rectangles
-		var groups = svg.selectAll("rectGroup").data(revisions).enter().append(
-			"g").attr("class", "rectGroup").attr("transform",
-			"translate(" + margin.left + "," + margin.top + ")");
-
-		var revisionIndex = -1, revisionIndex2 = -1; //one for calculating x; one for calculating rev_index
-		var accumulateSegLength = 0;
-		var displayGroups = function(groups, start, end) {
-			return groups
-			.filter(function(d, i) {
-				return i >= start && i <= end;
-			})
-			.selectAll("rect")
-			.data(function(d) {
-				if (d.segments.length != 0)
-					return d.segments;
-				else
-					return [ -1 ];
-			})
-			.enter()
-			.append("rect")
-			.attr("class", "segment")
-			.attr("x", function(d, i) {
-				if (i == 0)
-					revisionIndex++;
-				return xScale(revisionIndex);
-			})
-			.attr("rev",function(d, i) {
-				if (i == 0)
-					revisionIndex2++;
-				return revisionIndex2;
-			})
-			.attr(
-				"y",
-				function(d, i) {
-					if (i == 0) {
-						if (d == -1)
-							return yScale(0);
-						else {
-							accumulateSegLength = segments[d].segmentLength;
+					"y",
+					function(d, i) {
+						if (i == 0) {
+							if (d == -1)
+								return yScale(0);
+							else {
+								accumulateSegLength = segments[d].segmentLength;
+								return yScale(accumulateSegLength
+									- segments[d].segmentLength);
+							}
+						} else {
+							accumulateSegLength += segments[d].segmentLength;
 							return yScale(accumulateSegLength
 								- segments[d].segmentLength);
 						}
+					})
+				.attr("width", xScale.rangeBand())
+				.attr("height",
+					function(d) {
+						if (d == -1)
+							return 0;
+						else
+							return yScale(segments[d].segmentLength);
+					})
+				.attr("fill", function(d, i) {
+					if (d != -1)
+						return color(segments[d].authorId)
+				})
+				.on("click", function(d,i) {
+					$('#change_doc_id').val(doc_id);
+					$('#change_seg_id').val(d);
+					$('#change_rev_id').val($(this).attr("rev"));
+					$( "#dialog_form" ).dialog( "open" );
+	
+				});
+	
+			}
+	
+			displayGroups(groups, 0, 100);
+	
+			//===============================
+			var link = [], preSegment = [];
+			for (var j = 0; j < revisions.length - 1; j++) {
+				link[j] = [];//link[j] represent the link between revision j and j+1
+				preSegment = revisions[j].segments; //revision j segments
+				newSegment = revisions[j + 1].segments; //revision j+1 segments
+				//iterate revision j+1 segments to find father segment (segmentId) or it own(-1) in the previous revision
+				for (var k = 0; k < newSegment.length; k++) {
+					// If fatherSegmentIndex<0, it is not a child segment, either has a link to itself, or no link
+					if (segments[newSegment[k]].fatherSegmentIndex < 0) {
+						preIndex = preSegment.indexOf(newSegment[k]);
+						//preIndex = -1 means that the segment is not in the previous revision
+						if (preIndex != -1) {
+							link[j].push([ preSegment[preIndex], newSegment[k] ]);
+						} else {
+							//No link
+						}
 					} else {
-						accumulateSegLength += segments[d].segmentLength;
-						return yScale(accumulateSegLength
-							- segments[d].segmentLength);
+						// fatherSegmentIndex>0 it's a child segment, need to calculate the offset and position
+						preIndex = preSegment
+						.indexOf(segments[newSegment[k]].fatherSegmentIndex);
+						//If preindex != -1 means, the father is in previous revision, so link the fathter segment and child segment
+						if (preIndex != -1) {
+							link[j].push([ preSegment[preIndex], newSegment[k] ]);
+						}
+						// If preindex = -1 means, the father is not in previous revision, so link the child segment and itself in previsous version
+						else {
+							preIndex = preSegment.indexOf(newSegment[k]);
+							if (preIndex != -1) {
+								link[j]
+								.push([ preSegment[preIndex], newSegment[k] ]);
+							} else {
+								// means it has a father, but it's not in previous version,
+								alert("link compute error" + preIndex + " "
+									+ segments[newSegment[k]]);
+								//console.log(segments[newSegment[k]]);
+							}
+						}
 					}
+				}//end of Segments  for loop
+				// If there's no link at all, put a empty link for visualize reason
+				if (link[j].length == 0) {
+					link[j].push([ -1, -1 ]);
+				}
+			}// End of Revisions For loop
+	
+			var linkGroups = svg.selectAll("linkGroup").data(link).enter().append(
+				"g").attr("class", "linkGroup").attr(
+				"transform",
+				"translate(" + (margin.left + xScale.rangeBand()) + ","
+					+ margin.top + ")");
+	
+			var linkRevisionIndex = -1;
+			var displayLinks = function(linkGroups, start1, end1) {
+				return linkGroups
+				.filter(function(d, i) {
+					return i >= start1 && i <= end1;
 				})
-			.attr("width", xScale.rangeBand())
-			.attr("height",
-				function(d) {
-					if (d == -1)
-						return 0;
-					else
-						return yScale(segments[d].segmentLength);
+				.selectAll("link")
+				.data(function(d) {
+					return d;
 				})
-			.attr("fill", function(d, i) {
-				if (d != -1)
-					return color(segments[d].authorId)
+				.enter()
+				.append("path")
+				.attr("class", "link")
+				.attr(
+					"d",
+					function(d, i) {
+						if (i == 0) {
+							linkRevisionIndex++;
+							accumulateSegLength1 = 0;
+							accumulateSegLength2 = 0;
+						}
+						// If d[1] = -1 means it has only an empty link (-1,-1)
+						if (d[1] == -1) {
+							return "";
+						} else {
+							x0 = xScale(linkRevisionIndex);
+							var tempSegments1 = revisions[linkRevisionIndex].segments;
+							var tempSegments2 = revisions[linkRevisionIndex + 1].segments;
+
+							var index1 = tempSegments1.indexOf(d[0]);
+							var index2 = tempSegments2.indexOf(d[1]);
+
+							var accumulateSegLength1 = 0, accumulateSegLength2 = 0;
+
+							for (var q = 0; q < index1; q++) {
+								accumulateSegLength1 += segments[tempSegments1[q]].segmentLength;
+							}
+							for (var q = 0; q < index2; q++) {
+								accumulateSegLength2 += segments[tempSegments2[q]].segmentLength;
+							}
+
+							if (d[1] == d[0]) {
+								y0 = yScale(accumulateSegLength1);
+							} else {
+								y0 = yScale(accumulateSegLength1
+									+ segments[d[1]].offsetInFatherSegment);
+							}
+							y1 = yScale(accumulateSegLength2);
+
+							x1 = x0 + xScale.rangeBand();
+							dy = yScale(segments[d[1]].segmentLength);
+
+							return "M " + x0 + "," + y0 + " " + x0
+							+ "," + (y0 + dy) + " " + x1 + ","
+							+ (y1 + dy) + " " + x1 + "," + y1
+							+ "Z";
+						}
+
+					}).attr("fill", function(d, i) {
+						if (d[1] != -1)
+							return color(segments[d[1]].authorId);
+					}).attr("opacity", 0.8);
+
+				}
+	
+				displayLinks(linkGroups, 0, 100);
+			}
+		/* generate timescale historyflow instead of equaling distance */
+		else{
+
+			var mindate = new Date(revisions[0].time),maxdate = new Date(revisions[(revisions.length-1)].time);
+			var xScale = d3.time.scale().domain([mindate, maxdate])
+			.range([ 0, width - margin.left - margin.right ]);
+			var barWidth = 5;
+
+			// time
+			var dateLabel2 = svg.selectAll("dateLabel2").data(revisions).enter()
+			.append("text")
+			.attr("x", function(d, i) {
+				return 0;
 			})
-			.on("click", function(d,i) {
-				$('#change_doc_id').val(doc_id);
-				$('#change_seg_id').val(d);
-				$('#change_rev_id').val($(this).attr("rev"));
-				$( "#dialog_form" ).dialog( "open" );
+			.attr("y", function(d, i) {
+				return xScale(new Date(d.time));
+			})
+			.attr("font-family", "sans-serif").attr("font-size", "14px")
+			.attr("fill", "black").html(
+				function(d) {
+					return d.time.substring(5, 10) + " " + d.time.substring(11, 16);
+				}).attr(
+	
+				"transform","translate(" + (margin.left + 10) + "," + (margin.top-(5*barHeight)) + ") rotate(-90)");
 
-			});
-
-		}
-
-		displayGroups(groups, 0, 100);
-
-		//===============================
-		var link = [], preSegment = [];
-		for (var j = 0; j < revisions.length - 1; j++) {
-			link[j] = [];//link[j] represent the link between revision j and j+1
-			preSegment = revisions[j].segments; //revision j segments
-			newSegment = revisions[j + 1].segments; //revision j+1 segments
-			//iterate revision j+1 segments to find father segment (segmentId) or it own(-1) in the previous revision
-			for (var k = 0; k < newSegment.length; k++) {
-				// If fatherSegmentIndex<0, it is not a child segment, either has a link to itself, or no link
-				if (segments[newSegment[k]].fatherSegmentIndex < 0) {
-					preIndex = preSegment.indexOf(newSegment[k]);
-					//preIndex = -1 means that the segment is not in the previous revision
-					if (preIndex != -1) {
-						link[j].push([ preSegment[preIndex], newSegment[k] ]);
-					} else {
-						//No link
-					}
-				} else {
-					// fatherSegmentIndex>0 it's a child segment, need to calculate the offset and position
-					preIndex = preSegment
-					.indexOf(segments[newSegment[k]].fatherSegmentIndex);
-					//If preindex != -1 means, the father is in previous revision, so link the fathter segment and child segment
-					if (preIndex != -1) {
-						link[j].push([ preSegment[preIndex], newSegment[k] ]);
-					}
-					// If preindex = -1 means, the father is not in previous revision, so link the child segment and itself in previsous version
-					else {
-						preIndex = preSegment.indexOf(newSegment[k]);
-						if (preIndex != -1) {
-							link[j]
-							.push([ preSegment[preIndex], newSegment[k] ]);
-						} else {
-							// means it has a father, but it's not in previous version,
-							alert("link compute error" + preIndex + " "
-								+ segments[newSegment[k]]);
-							//console.log(segments[newSegment[k]]);
-						}
-					}
+			/**
+			 * Draw the multi author labl on top of each one
+			 */
+			 for(var index=0; index< revisions.length; index++){
+			 	var rev = revisions[index];
+				//deal with multi author
+				if($.isArray(rev.authorId)){
+					svg.selectAll("authorLabel_"+index).data(rev.authorId).enter().append("rect")
+					.attr("x", function() {
+						return xScale(new Date(rev.time));
+					})
+					.attr("y", function(d,i){return (barHeight+1)*i;})
+					.attr("width", barWidth)
+					.attr("height", barHeight)
+					.style("fill", function(d, i) {
+						return color(d);
+					})
+					.attr(
+						"transform", "translate(" + margin.left + "," + (margin.top - (5*barHeight))
+							+ ")")//work on the "authors on but not doing editing thing, changes will only effect the author label"
+					.on("click", function(d) {
+						$('#authorlabel_change_doc_id').val(doc_id);
+						//$('#change_seg_id_author').val(d);
+						$('#authorlabel_change_rev_id').val(index);
+						$('#authorlabel_dialog_form').dialog("open");	
+					});
 				}
-			}//end of Segments  for loop
-			// If there's no link at all, put a empty link for visualize reason
-			if (link[j].length == 0) {
-				link[j].push([ -1, -1 ]);
+				
+				//deal with the old version single author heritage
+				else{
+					svg.append("rect")
+					.attr("x", function() {
+						return xScale(new Date(rev.time));
+					})
+					.attr("y", 0)
+					.attr("width", barWidth)
+					.attr("height", barHeight)
+					.style("fill",  function(){
+						return color(rev.authorId);
+					})
+					.attr(
+						"transform", "translate(" + margin.left + "," + (margin.top - (5*barHeight))
+							+ ")")
+					.on("click", function() {
+						$('#authorlabel_change_doc_id').val(doc_id);
+						//$('#change_seg_id_author').val(d);
+						$('#authorlabel_change_rev_id').val(index);
+						$('#authorlabel_dialog_form').dialog( "open" );	
+					});
+				}
+				
 			}
-		}// End of Revisions For loop
 
-		var linkGroups = svg.selectAll("linkGroup").data(link).enter().append(
-			"g").attr("class", "linkGroup").attr(
-			"transform",
-			"translate(" + (margin.left + xScale.rangeBand()) + ","
-				+ margin.top + ")");
+			var groups = svg.selectAll("rectGroup").data(revisions).enter().append(
+				"g").attr("class", "rectGroup").attr("transform",
+				"translate(" + margin.left + "," + margin.top + ")");
 
-			var linkRevisionIndex = -1;
-			var displayLinks = function(linkGroups, start1, end1) {
-				return linkGroups
+			var revisionIndex = -1, revisionIndex2 = -1;
+			var accumulateSegLength = 0;
+			var displayGroups = function(groups, start, end) {
+				return groups
 				.filter(function(d, i) {
-					return i >= start1 && i <= end1;
+					return i >= start && i <= end;
 				})
-				.selectAll("link")
+				.selectAll("rect")
 				.data(function(d) {
-					return d;
+					if (d.segments.length != 0)
+						return d.segments;
+					else
+						return [ -1 ];
 				})
 				.enter()
-				.append("path")
-				.attr("class", "link")
+				.append("rect")
+				.attr("class", "segment")
+				.attr("x", function(d, i) {
+					if (i == 0)
+						revisionIndex++;
+					return xScale(new Date(revisions[revisionIndex].time));
+				})
+				.attr("rev",function(d, i) {
+					if (i == 0)
+						revisionIndex2++;
+					return revisionIndex2;
+				})
 				.attr(
-					"d",
+					"y",
 					function(d, i) {
 						if (i == 0) {
-							linkRevisionIndex++;
-							accumulateSegLength1 = 0;
-							accumulateSegLength2 = 0;
-						}
-								// If d[1] = -1 means it has only an empty link (-1,-1)
-								if (d[1] == -1) {
-									return "";
-								} else {
-									x0 = xScale(linkRevisionIndex);
-									var tempSegments1 = revisions[linkRevisionIndex].segments;
-									var tempSegments2 = revisions[linkRevisionIndex + 1].segments;
-
-									var index1 = tempSegments1.indexOf(d[0]);
-									var index2 = tempSegments2.indexOf(d[1]);
-
-									var accumulateSegLength1 = 0, accumulateSegLength2 = 0;
-
-									for (var q = 0; q < index1; q++) {
-										accumulateSegLength1 += segments[tempSegments1[q]].segmentLength;
-									}
-									for (var q = 0; q < index2; q++) {
-										accumulateSegLength2 += segments[tempSegments2[q]].segmentLength;
-									}
-
-									if (d[1] == d[0]) {
-										y0 = yScale(accumulateSegLength1);
-									} else {
-										y0 = yScale(accumulateSegLength1
-											+ segments[d[1]].offsetInFatherSegment);
-									}
-									y1 = yScale(accumulateSegLength2);
-
-									x1 = x0 + xScale.rangeBand();
-									dy = yScale(segments[d[1]].segmentLength);
-
-									return "M " + x0 + "," + y0 + " " + x0
-									+ "," + (y0 + dy) + " " + x1 + ","
-									+ (y1 + dy) + " " + x1 + "," + y1
-									+ "Z";
-								}
-
-							}).attr("fill", function(d, i) {
-								if (d[1] != -1)
-									return color(segments[d[1]].authorId);
-							}).attr("opacity", 0.8);
-
-						}
-
-						displayLinks(linkGroups, 0, 100);
-					}
-					/* generate timescale historyflow instead of equaling distance */
-					else{
-
-						var mindate = new Date(revisions[0].time),maxdate = new Date(revisions[(revisions.length-1)].time);
-						var xScale = d3.time.scale().domain([mindate, maxdate])
-						.range([ 0, width - margin.left - margin.right ]);
-
-						var barWidth = 5;
-
-		// time
-		var dateLabel2 = svg.selectAll("dateLabel2").data(revisions).enter()
-		.append("text")
-		.attr("x", function(d, i) {
-			return 0;
-		})
-		.attr("y", function(d, i) {
-			return xScale(new Date(d.time));
-		})
-		.attr("font-family", "sans-serif").attr("font-size", "14px")
-		.attr("fill", "black").html(
-			function(d) {
-				return d.time.substring(5, 10) + " " + d.time.substring(11, 16);
-			}).attr(
-
-			"transform","translate(" + (margin.left + 10) + "," + (margin.top-(5*barHeight)) + ") rotate(-90)");
-
-		/**
-		 * Draw the multi author labl on top of each one
-		 */
-		 for(var index=0; index< revisions.length; index++){
-		 	var rev = revisions[index];
-			//deal with multi author
-			if($.isArray(rev.authorId)){
-				svg.selectAll("authorLabel_"+index).data(revisions[index].authorId).enter().append("rect")
-				.attr("x", function() {
-					return xScale(new Date(revisions[index].time));
-				})
-				.attr("y", function(d,i){return (barHeight+1)*i;})
-				.attr("width", barWidth)
-				.attr("height", barHeight)
-				.style("fill", function(d, i) {
-					return color(d);
-				})
-				//work on the "authors on but not doing editing thing, changes will only effect the author label"
-				.on("click", function(d) {
-					$('#authorlabel_change_doc_id').val(doc_id);
-					//$('#change_seg_id_author').val(d);
-					$('#authorlabel_change_rev_id').val(index);
-					$('#authorlabel_dialog_form').dialog( "open" );	
-				})
-				.attr(
-					"transform", "translate(" + margin.left + "," + (margin.top - (5*barHeight))
-						+ ")");
-			}
-			//deal with the old version single author heritage
-			else{
-				svg.append("rect")
-				.attr("x", function() {
-					return xScale(new Date(rev.time));
-				})
-				.attr("y", 0)
-				.attr("width", barWidth)
-				.attr("height", barHeight)
-				.style("fill",  function(){
-					return color(rev.authorId);
-				})
-				.on("click", function(d) {
-					$('#authorlabel_change_doc_id').val(doc_id);
-					//$('#change_seg_id_author').val(d);
-					$('#authorlabel_change_rev_id').val(index);
-					$('#authorlabel_dialog_form').dialog( "open" );	
-				})
-				.attr(
-					"transform", "translate(" + margin.left + "," + (margin.top - (5*barHeight))
-						+ ")");
-			}
-		}
-
-var groups = svg.selectAll("rectGroup").data(revisions).enter().append(
-	"g").attr("class", "rectGroup").attr("transform",
-	"translate(" + margin.left + "," + margin.top + ")");
-
-	var revisionIndex = -1, revisionIndex2 = -1;
-	var accumulateSegLength = 0;
-	var displayGroups = function(groups, start, end) {
-		return groups
-		.filter(function(d, i) {
-			return i >= start && i <= end;
-		})
-		.selectAll("rect")
-		.data(function(d) {
-			if (d.segments.length != 0)
-				return d.segments;
-			else
-				return [ -1 ];
-		})
-		.enter()
-		.append("rect")
-		.attr("class", "segment")
-		.attr("x", function(d, i) {
-			if (i == 0)
-				revisionIndex++;
-			return xScale(new Date(revisions[revisionIndex].time));
-		})
-		.attr("rev",function(d, i) {
-			if (i == 0)
-				revisionIndex2++;
-			return revisionIndex2;
-		})
-		.attr(
-			"y",
-			function(d, i) {
-				if (i == 0) {
-					if (d == -1)
-						return yScale(0);
-					else {
-						accumulateSegLength = segments[d].segmentLength;
-						return yScale(accumulateSegLength
-							- segments[d].segmentLength);
-					}
-				} else {
-					accumulateSegLength += segments[d].segmentLength;
-					return yScale(accumulateSegLength
-						- segments[d].segmentLength);
-				}
-			}).attr("width", barWidth).attr("height",
-			function(d) {
-				if (d == -1)
-					return 0;
-				else
-					return yScale(segments[d].segmentLength);
-			}).attr("fill", function(d, i) {
-				if (d != -1)
-					return color(segments[d].authorId)
-			}).on("click", function(d) {
-				$('#change_doc_id').val(doc_id);
-				$('#change_seg_id').val(d);
-				$('#change_rev_id').val($(this).attr("rev"));
-				$( '#dialog_form' ).dialog( "open" );
-
-			});
-		}
-
-		displayGroups(groups, 0, 100);
-
-		//===============================
-		var link = [], preSegment = [];
-		for (var j = 0; j < revisions.length - 1; j++) {
-			link[j] = [];//link[j] represent the link between revision j and j+1
-			preSegment = revisions[j].segments; //revision j segments
-			newSegment = revisions[j + 1].segments; //revision j+1 segments
-			//iterate revision j+1 segments to find father segment (segmentId) or it own(-1) in the previous revision
-			for (var k = 0; k < newSegment.length; k++) {
-				// If fatherSegmentIndex<0, it is not a child segment, either has a link to itself, or no link
-				if (segments[newSegment[k]].fatherSegmentIndex < 0) {
-					preIndex = preSegment.indexOf(newSegment[k]);
-					//preIndex = -1 means that the segment is not in the previous revision
-					if (preIndex != -1) {
-						link[j].push([ preSegment[preIndex], newSegment[k] ]);
-					} else {
-						//No link
-					}
-				} else {
-					// fatherSegmentIndex>0 it's a child segment, need to calculate the offset and position
-					preIndex = preSegment
-					.indexOf(segments[newSegment[k]].fatherSegmentIndex);
-					//If preindex != -1 means, the father is in previous revision, so link the fathter segment and child segment
-					if (preIndex != -1) {
-						link[j].push([ preSegment[preIndex], newSegment[k] ]);
-					}
-					// If preindex = -1 means, the father is not in previous revision, so link the child segment and itself in previsous version
-					else {
-						preIndex = preSegment.indexOf(newSegment[k]);
-						if (preIndex != -1) {
-							link[j]
-							.push([ preSegment[preIndex], newSegment[k] ]);
+							if (d == -1)
+								return yScale(0);
+							else {
+								accumulateSegLength = segments[d].segmentLength;
+								return yScale(accumulateSegLength
+									- segments[d].segmentLength);
+							}
 						} else {
-							// means it has a father, but it's not in previous version,
-							alert("link compute error" + preIndex + " "
-								+ segments[newSegment[k]]);
-							//console.log(segments[newSegment[k]]);
+							accumulateSegLength += segments[d].segmentLength;
+							return yScale(accumulateSegLength
+								- segments[d].segmentLength);
 						}
-					}
+					}).attr("width", barWidth).attr("height",
+					function(d) {
+						if (d == -1)
+							return 0;
+						else
+							return yScale(segments[d].segmentLength);
+					}).attr("fill", function(d, i) {
+						if (d != -1)
+							return color(segments[d].authorId)
+					}).on("click", function(d) {
+						$('#change_doc_id').val(doc_id);
+						$('#change_seg_id').val(d);
+						$('#change_rev_id').val($(this).attr("rev"));
+						$( '#dialog_form' ).dialog( "open" );
+		
+					});
 				}
-			}//end of Segments  for loop
-			// If there's no link at all, put a empty link for visualize reason
-			if (link[j].length == 0) {
-				link[j].push([ -1, -1 ]);
-			}
-		}// End of Revisions For loop
-
-		var linkGroups = svg.selectAll("linkGroup").data(link).enter().append(
-			"g").attr("class", "linkGroup").attr(
-			"transform",
-			"translate(" + (margin.left + barWidth) + ","
-				+ margin.top + ")");
-
-			var linkRevisionIndex = -1;
-			var displayLinks = function(linkGroups, start1, end1) {
-				return linkGroups
-				.filter(function(d, i) {
-					return i >= start1 && i <= end1;
-				})
-				.selectAll("link")
-				.data(function(d) {
-					return d;
-				})
-				.enter()
-				.append("path")
-				.attr("class", "link")
-				.attr(
-					"d",
-					function(d, i) {
-						if (i == 0) {
-							linkRevisionIndex++;
-							accumulateSegLength1 = 0;
-							accumulateSegLength2 = 0;
-						}
-								// If d[1] = -1 means it has only an empty link (-1,-1)
-								if (d[1] == -1) {
-									return "";
+		
+				displayGroups(groups, 0, 100);
+		
+				//===============================
+				var link = [], preSegment = [];
+				for (var j = 0; j < revisions.length - 1; j++) {
+					link[j] = [];//link[j] represent the link between revision j and j+1
+					preSegment = revisions[j].segments; //revision j segments
+					newSegment = revisions[j + 1].segments; //revision j+1 segments
+					//iterate revision j+1 segments to find father segment (segmentId) or it own(-1) in the previous revision
+					for (var k = 0; k < newSegment.length; k++) {
+						// If fatherSegmentIndex<0, it is not a child segment, either has a link to itself, or no link
+						if (segments[newSegment[k]].fatherSegmentIndex < 0) {
+							preIndex = preSegment.indexOf(newSegment[k]);
+							//preIndex = -1 means that the segment is not in the previous revision
+							if (preIndex != -1) {
+								link[j].push([ preSegment[preIndex], newSegment[k] ]);
+							} else {
+								//No link
+							}
+						} else {
+							// fatherSegmentIndex>0 it's a child segment, need to calculate the offset and position
+							preIndex = preSegment
+							.indexOf(segments[newSegment[k]].fatherSegmentIndex);
+							//If preindex != -1 means, the father is in previous revision, so link the fathter segment and child segment
+							if (preIndex != -1) {
+								link[j].push([ preSegment[preIndex], newSegment[k] ]);
+							}
+							// If preindex = -1 means, the father is not in previous revision, so link the child segment and itself in previsous version
+							else {
+								preIndex = preSegment.indexOf(newSegment[k]);
+								if (preIndex != -1) {
+									link[j]
+									.push([ preSegment[preIndex], newSegment[k] ]);
 								} else {
-									x0 = xScale(new Date(revisions[linkRevisionIndex].time));
-									var tempSegments1 = revisions[linkRevisionIndex].segments;
-									var tempSegments2 = revisions[linkRevisionIndex + 1].segments;
+									// means it has a father, but it's not in previous version,
+									alert("link compute error" + preIndex + " "
+										+ segments[newSegment[k]]);
+									//console.log(segments[newSegment[k]]);
+								}
+							}
+						}
+					}//end of Segments  for loop
+					// If there's no link at all, put a empty link for visualize reason
+					if (link[j].length == 0) {
+						link[j].push([ -1, -1 ]);
+					}
+				}// End of Revisions For loop
+		
+				var linkGroups = svg.selectAll("linkGroup").data(link).enter().append(
+					"g").attr("class", "linkGroup").attr(
+					"transform",
+					"translate(" + (margin.left + barWidth) + ","
+						+ margin.top + ")");
 
-									var index1 = tempSegments1.indexOf(d[0]);
-									var index2 = tempSegments2.indexOf(d[1]);
+				var linkRevisionIndex = -1;
+				var displayLinks = function(linkGroups, start1, end1) {
+					return linkGroups
+					.filter(function(d, i) {
+						return i >= start1 && i <= end1;
+					})
+					.selectAll("link")
+					.data(function(d) {
+						return d;
+					})
+					.enter()
+					.append("path")
+					.attr("class", "link")
+					.attr(
+						"d",
+						function(d, i) {
+							if (i == 0) {
+								linkRevisionIndex++;
+								accumulateSegLength1 = 0;
+								accumulateSegLength2 = 0;
+							}
+							// If d[1] = -1 means it has only an empty link (-1,-1)
+							if (d[1] == -1) {
+								return "";
+							} else {
+								x0 = xScale(new Date(revisions[linkRevisionIndex].time));
+								var tempSegments1 = revisions[linkRevisionIndex].segments;
+								var tempSegments2 = revisions[linkRevisionIndex + 1].segments;
 
-									var accumulateSegLength1 = 0, accumulateSegLength2 = 0;
+								var index1 = tempSegments1.indexOf(d[0]);
+								var index2 = tempSegments2.indexOf(d[1]);
 
-									for (var q = 0; q < index1; q++) {
-										accumulateSegLength1 += segments[tempSegments1[q]].segmentLength;
-									}
-									for (var q = 0; q < index2; q++) {
-										accumulateSegLength2 += segments[tempSegments2[q]].segmentLength;
-									}
+								var accumulateSegLength1 = 0, accumulateSegLength2 = 0;
 
-									if (d[1] == d[0]) {
-										y0 = yScale(accumulateSegLength1);
-									} else {
-										y0 = yScale(accumulateSegLength1
-											+ segments[d[1]].offsetInFatherSegment);
-									}
-									y1 = yScale(accumulateSegLength2);
-
-									x1 = xScale(new Date(revisions[linkRevisionIndex+1].time));
-									dy = yScale(segments[d[1]].segmentLength);
-
-									return "M " + x0 + "," + y0 + " " + x0
-									+ "," + (y0 + dy) + " " + x1 + ","
-									+ (y1 + dy) + " " + x1 + "," + y1
-									+ "Z";
+								for (var q = 0; q < index1; q++) {
+									accumulateSegLength1 += segments[tempSegments1[q]].segmentLength;
+								}
+								for (var q = 0; q < index2; q++) {
+									accumulateSegLength2 += segments[tempSegments2[q]].segmentLength;
 								}
 
-							}).attr("fill", function(d, i) {
-								if (d[1] != -1)
-									return color(segments[d[1]].authorId);
-							}).attr("opacity", 0.8);
+								if (d[1] == d[0]) {
+									y0 = yScale(accumulateSegLength1);
+								} else {
+									y0 = yScale(accumulateSegLength1
+										+ segments[d[1]].offsetInFatherSegment);
+								}
+								y1 = yScale(accumulateSegLength2);
 
-						}
+								x1 = xScale(new Date(revisions[linkRevisionIndex+1].time));
+								dy = yScale(segments[d[1]].segmentLength);
 
-						displayLinks(linkGroups, 0, 100);
+								return "M " + x0 + "," + y0 + " " + x0
+								+ "," + (y0 + dy) + " " + x1 + ","
+								+ (y1 + dy) + " " + x1 + "," + y1
+								+ "Z";
+							}
+						}).attr("fill", function(d, i) {
+							if (d[1] != -1)
+								return color(segments[d[1]].authorId);
+						}).attr("opacity", 0.8);
 					}
-
+	
+					displayLinks(linkGroups, 0, 100);
 				}
-			</script>
-			<script
-			src="//apis.google.com/js/api.js?onload=onApiLoad"
-			type="text/javascript"></script>
-			</html>
+			// END of Generating Time scale historyflow
+		}
+		// END of the historyflow funciton
+	</script>
+	<script src="//apis.google.com/js/api.js?onload=onApiLoad" type="text/javascript"></script>
+</html>
