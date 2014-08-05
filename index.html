@@ -714,6 +714,7 @@
 					 * Draw the history flow
 					 * refresh the chart
 					 */
+					var values = $( "#sliderBar" ).slider( "option", "values" );
 					$.ajax({
 						type : 'POST',
 						url : window.location.href + 'viz?doc_id=' + doc_id+'&end_rev_index='+(values[1]-1) +'&start_rev_index='+(values[0]-1),
