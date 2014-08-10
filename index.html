@@ -2,7 +2,7 @@
 <html>
 <head>
 	<title>{{ APPLICATION_NAME }}</title>
-	
+
 	<link rel="stylesheet" href="//kubiwork.com/othersites/docuviz/css/global2.css"></link>
 	<link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/themes/start/jquery-ui.css" type="text/css" media="all"></link>
 	<link rel="stylesheet" href="//kubiwork.com/othersites/docuviz/css/jquery.multiselect.css"></link>
@@ -30,6 +30,11 @@
 </head>
 
 <body>
+
+	<!-- @Kubi: Test the Segment's Content -->
+	<div style="position: absolute; padding: 20px; width: 300px; border-radius: 5px; background: #eee; display: none;" class="text_content">
+
+	</div>
 
 	<div class="site-wrap">
     <section class="billboard">
@@ -162,7 +167,7 @@
 	  	<!-- Hidden Content dialog by Jingwen -->
 	  	<div id="content" title="Content">
 	  	</div>
-  	
+
   </div>
 </div>
 
@@ -181,7 +186,7 @@
 
 	/**
 	 * The helper functions to post AJAX call to backend server, by Dakuo
-	 */	
+	 */
 	var helper = (function() {
 		var authResult = undefined;
 		return {
@@ -475,20 +480,20 @@
 			 renderVisualization : function(doc_id, doc_name) {
 		        $('.log__content').empty();
 				$('#vizChart').empty();
-		
+
 		        $('.docuviz-controller').show();
 				$('.loading-screen').hide();
-		
-		
+
+
 		        // Remove bug from Slider Bar when switching document
 		        $('.slider-bar-wrap').empty();
-		
+
 				$('#slider').hide();
-		
+
 		        // $('.log__content').append('Viz Result for Document: ' + doc_name + '<br/>');
 
 			 	$('#change_doc_id').val(doc_id);
-			 	
+
 				$.ajax({
 					type : 'POST',
 					url : window.location.href + 'viz?doc_id=' + doc_id,
@@ -653,14 +658,18 @@
 			 				+ " Result ");
 
 			 			// $('.log__content').append(result + ' <br/>');
-			 			$('#content').html(result+'<span></span>');
+			 			// $('#content').html(result+'<span></span>');
+
+			 			// @KUBI CODE
+			 			$('.text_content').html(result+'<span></span>');
+
 			 		},
 			 		processData : false,
 			 		data : this.authResult.code
 			 	});
 
 			 	$('#content').removeClass('ui-dialog-buttonpane ui-widget-content ui-helper-clearfix');
-			 	$('#content').dialog("open");
+			 	// $('#content').dialog("open");
 			 },
 
 			/*
@@ -729,7 +738,7 @@
 					});
 				});
 			},
-			
+
 			/*
 			 *	change the authorlabel on top of revisions
 			 *
@@ -986,7 +995,7 @@
 		 * Initiate the authorlabel function pop-up window
 		 */
 		$('#authorlabel_author_list').multiselect();
-		
+
 		$( "#authorlabel_dialog_form" ).dialog({
 			autoOpen: false,
 			height: 300,
@@ -1060,13 +1069,13 @@
 		 var doc_name = dataset.docName;
 
 		 timescale_flag = typeof timescale_flag !== 'undefined' ? timescale_flag : false;
-		
+
 		 // update the author_list for change segment author function
 		 d3.select("#author_list")
 		 .selectAll("option").data(authors).enter().append("option")
 		 .attr("value", function(d,i){ return i; })
 		 .text(function(d){ return d; });
-		 
+
 		 // update the authorlabel_author_list for change authorlabel function
 		 d3.select("#authorlabel_author_list")
 		 .selectAll("option").data(authors).enter().append("option")
@@ -1127,7 +1136,7 @@
 							+ "," + (height - margin.bottom + (barHeight ) ) + ")");
 
 		var titleText = svg.append("text").attr("x",11).attr("y",16).attr("font-family", "sans-serif").attr("font-size", "20px").text(""+doc_name);
-		
+
 		/*
 		 * Equal Distance Rendering
 		 */
@@ -1178,7 +1187,7 @@
 						$('#authorlabel_change_doc_id').val(doc_id);
 						//$('#change_seg_id_author').val(d);
 						$('#authorlabel_change_rev_id').val($(this).attr("rev"));
-						$('#authorlabel_dialog_form').dialog( "open" );	
+						$('#authorlabel_dialog_form').dialog( "open" );
 					});
 				}
 				//deal with the old version single author heritage
@@ -1203,7 +1212,7 @@
 						$('#authorlabel_change_doc_id').val(doc_id);
 						//$('#change_seg_id_author').val(d);
 						$('#authorlabel_change_rev_id').val($(this).attr("rev"));
-						$('#authorlabel_dialog_form').dialog( "open" );	
+						$('#authorlabel_dialog_form').dialog( "open" );
 					});
 				}
 			}
@@ -1213,7 +1222,7 @@
 			var groups = svg.selectAll("rectGroup").data(revisions).enter().append(
 				"g").attr("class", "rectGroup").attr("transform",
 				"translate(" + margin.left + "," + margin.top + ")");
-	
+
 			var revisionIndex = -1, revisionIndex2 = -1; //one for calculating x; one for calculating rev_index
 			var accumulateSegLength = 0;
 			var displayGroups = function(groups, start, end) {
@@ -1270,18 +1279,29 @@
 					if (d != -1)
 						return color(segments[d].authorId)
 				})
+				.on({
+					mouseenter: function(d, i) {
+						$('#change_seg_id').val(d);
+						helper.retrieveSegmentContent(doc_id, $('#change_seg_id').val());
+						$('.text_content').css({opacity: 0.95, display: "none"}).fadeIn(0);
+					},
+					mouseleave: function(d, i) {
+						$('.text_content').css({display: "none"});
+					}
+
+				}, ".hover")
 				.on("click", function(d,i) {
 					$('#change_doc_id').val(doc_id);
 					$('#change_seg_id').val(d);
 					$('#change_rev_id').val($(this).attr("rev"));
 					$( "#dialog_form" ).dialog( "open" );
-	
+
 				});
-	
+
 			}
-	
+
 			displayGroups(groups, 0, 100);
-	
+
 			//===============================
 			var link = [], preSegment = [];
 			for (var j = 0; j < revisions.length - 1; j++) {
@@ -1327,13 +1347,13 @@
 					link[j].push([ -1, -1 ]);
 				}
 			}// End of Revisions For loop
-	
+
 			var linkGroups = svg.selectAll("linkGroup").data(link).enter().append(
 				"g").attr("class", "linkGroup").attr(
 				"transform",
 				"translate(" + (margin.left + xScale.rangeBand()) + ","
 					+ margin.top + ")");
-	
+
 			var linkRevisionIndex = -1;
 			var displayLinks = function(linkGroups, start1, end1) {
 				return linkGroups
@@ -1398,7 +1418,7 @@
 					}).attr("opacity", 0.8);
 
 				}
-	
+
 				displayLinks(linkGroups, 0, 100);
 			}
 		/* generate timescale historyflow instead of equaling distance */
@@ -1423,7 +1443,7 @@
 				function(d) {
 					return d.time.substring(5, 10) + " " + d.time.substring(11, 16);
 				}).attr(
-	
+
 				"transform","translate(" + (margin.left + 10) + "," + (margin.top-(5*barHeight)) + ") rotate(-90)");
 
 			/**
@@ -1452,10 +1472,10 @@
 						$('#authorlabel_change_doc_id').val(doc_id);
 						//$('#change_seg_id_author').val(d);
 						$('#authorlabel_change_rev_id').val($(this).attr("rev"));
-						$('#authorlabel_dialog_form').dialog("open");	
+						$('#authorlabel_dialog_form').dialog("open");
 					});
 				}
-				
+
 				//deal with the old version single author heritage
 				else{
 					svg.append("rect")
@@ -1477,10 +1497,10 @@
 						$('#authorlabel_change_doc_id').val(doc_id);
 						//$('#change_seg_id_author').val(d);
 						$('#authorlabel_change_rev_id').val($(this).attr("rev"));
-						$('#authorlabel_dialog_form').dialog( "open" );	
+						$('#authorlabel_dialog_form').dialog( "open" );
 					});
 				}
-				
+
 			}
 
 			var groups = svg.selectAll("rectGroup").data(revisions).enter().append(
@@ -1544,12 +1564,12 @@
 						$('#change_seg_id').val(d);
 						$('#change_rev_id').val($(this).attr("rev"));
 						$( '#dialog_form' ).dialog( "open" );
-		
+
 					});
 				}
-		
+
 				displayGroups(groups, 0, 100);
-		
+
 				//===============================
 				var link = [], preSegment = [];
 				for (var j = 0; j < revisions.length - 1; j++) {
@@ -1595,7 +1615,7 @@
 						link[j].push([ -1, -1 ]);
 					}
 				}// End of Revisions For loop
-		
+
 				var linkGroups = svg.selectAll("linkGroup").data(link).enter().append(
 					"g").attr("class", "linkGroup").attr(
 					"transform",
@@ -1664,7 +1684,7 @@
 								return color(segments[d[1]].authorId);
 						}).attr("opacity", 0.8);
 					}
-	
+
 					displayLinks(linkGroups, 0, 100);
 				}
 			// END of Generating Time scale historyflow
@@ -1672,4 +1692,29 @@
 		// END of the historyflow funciton
 	</script>
 	<script src="//apis.google.com/js/api.js?onload=onApiLoad" type="text/javascript"></script>
+
+	<!-- @KUBI: Detect Mouse Movement to position tooltip -->
+	<script>
+		$(window).mousemove(function(e) {
+		  var border_top = e.clientY;
+		  var border_right = $(window).width();
+		  var left_pos;
+		  var top_pos;
+		  var offset = 15;
+
+		  if(border_right - (offset *2) >= $('.text_content').width() + e.pageX){
+		    left_pos = e.pageX+offset;
+		    } else{
+		    left_pos = border_right-$('.text_content').width()-offset;
+		    }
+
+		  if(border_top + (offset *2)>= e.pageY - $('.text_content').height()){
+		    top_pos = border_top +offset;
+		    } else{
+		    top_pos = e.pageY-$('.text_content').height()-offset;
+		    }
+
+		  $('.text_content').css({left:left_pos, top:top_pos});
+		});
+	</script>
 </html>
