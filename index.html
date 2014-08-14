@@ -1281,8 +1281,7 @@
 				})
 				.on({
 					mouseenter: function(d, i) {
-						$('#change_seg_id').val(d);
-						helper.retrieveSegmentContent(doc_id, $('#change_seg_id').val());
+						helper.retrieveSegmentContent(doc_id, d);
 						$('.text_content').css({opacity: 0.95, display: "none"}).fadeIn(0);
 					},
 					mouseleave: function(d, i) {
