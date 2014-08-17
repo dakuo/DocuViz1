@@ -1714,7 +1714,7 @@
 		  if(border_right - (offset *2) >= $('.text_content').width() + e.pageX){
 		    left_pos = e.pageX+offset;
 		    } else{
-		    left_pos = border_right-$('.text_content').width()-offset;
+		    left_pos = e.pageX -$('.text_content').width()- (offset*5);
 		    }
 
 		  if(border_top + (offset *2)>= e.pageY - $('.text_content').height()){
