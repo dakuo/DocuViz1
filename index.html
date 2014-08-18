@@ -67,7 +67,7 @@
            	</p>
 
            	<p>
-           	  DocuViz was developed by the Hana Lab at UC Irvine, including Dakuo Wang, Jingwen Zhang, Judy Olson, Gary Olson, and Trung Nguyen. 
+           	  DocuViz was developed by the Hana Lab at UC Irvine, including Dakuo Wang, Jingwen Zhang, Judy Olson, Gary Olson, and Trung Nguyen.
            	</p>
           </span>
 
@@ -145,7 +145,7 @@
 		<pre id="vizChart"></pre>
 
   		<!-- Hidden <FORM> to submit the SVG data to the server, which will convert it to SVG/PDF/PNG downloadable file.
-  		The form is populated and submitted by the JavaScript below. -->
+  		The form is populated and submitted by the JavaScript below. Code by Dakuo -->
   		<form id="svgform" method="post" action="saveImage">
   			<input type="hidden" id="output_format" name="output_format" value="">
   			<input type="hidden" id="data" name="data" value="">
@@ -155,7 +155,7 @@
   		<h2>Authentication Logs</h2>
   		<pre id="authResult"></pre>
   	-->
-	  	<!--  Hidden Dialog FORM to submit the changing author request by Dakuo -->
+	  	<!--  Hidden Dialog FORM to submit the changing author request. Code by Dakuo -->
 	  	<div id="dialog_form" title="Change Segment Author">
 	  		<form>
 	  			<select id="author_list"></select>
@@ -164,7 +164,16 @@
 	  			<input type="hidden" id="change_rev_id" name="rev_id" value="">
 	  		</form>
 	  	</div>
-	  	<!--  Hidden Author Lableing Dialog FORM to submit the changing author labeling request by Dakuo-->
+	  	<!--  Hidden Dialog FORM to submit the adding author request. Sometimes the author is not in the Google API authorlist.
+	  	 Code by Dakuo -->
+	  	<div id="addauthor_dialog_form" title="Add an Author">
+	  		<form>
+	  			<label>New Author's Name: </label>
+	  			<input type="text" id="addauthor_author_name" name="author_name">
+	  			<input type="hidden" id="addauthor_doc_id" name="doc_id" value="">
+	  		</form>
+	  	</div>
+	  	<!--  Hidden Author Lableing Dialog FORM to submit the changing author labeling request. Code by Dakuo-->
 	  	<div id="authorlabel_dialog_form" title="Change Author Lable">
 	  		<form>
 	  			<select id="authorlabel_author_list" multiple="multiple"></select>
@@ -172,7 +181,7 @@
 	  			<input type="hidden" id="authorlabel_change_rev_id" name="rev_id" value="">
 	  		</form>
 	  	</div>
-	  	<!-- Hidden Content dialog by Jingwen -->
+	  	<!-- Hidden Content dialog. Code by Jingwen -->
 	  	<div id="content" title="Content">
 	  	</div>
 
@@ -812,6 +821,72 @@
 					});
 				});
 			},
+			
+			/*
+			 *	add a missing author to the document
+			 *
+			 */
+			 addAuthor : function(doc_id, author_name) {
+			 	$.ajax({
+			 		type : 'POST',
+			 		url : window.location.href + 'addAuthor?doc_id=' + doc_id
+			 		+ '&author_name=' + author_name,
+			 		contentType : 'application/octet-stream; charset=utf-8',
+			 		success : function(result) {
+			 			console.log("author name: "+ author_name);
+			 			// $('.log__content').append(result + ' <br/>');
+			 		},
+			 		processData : false,
+			 		data : this.authResult.code
+			 	});
+
+			 	$('#vizChart').fadeOut(300,function(){
+			 		$('#vizChart').empty();
+					/*
+					 ** To Prepare the SVG Convas for drawing the history flow
+					 */
+					 var width = 1280, height = 900, margin = {
+					 	'top' : 20,
+					 	'right' : 10,
+					 	'bottom' : 10,
+					 	'left' : 10
+					 };
+					 var svg = d3.select("#vizChart").append("svg")
+					 .attr(
+					 	"width",
+					 	width + margin.left
+					 	+ margin.right)
+					 .attr(
+					 	"height",
+					 	height + margin.top
+					 	+ margin.bottom)
+					 .attr(
+					 	"margin-left",
+					 	margin.left
+					 	)
+					 .attr(
+					 	"margin-top",
+					 	margin.top
+					 	);
+					/*
+					 * Draw the history flow
+					 * refresh the chart
+					 */
+					var values = $( "#sliderBar" ).slider( "option", "values" );
+					$.ajax({
+						type : 'POST',
+						url : window.location.href + 'viz?doc_id=' + doc_id+'&end_rev_index='+(values[1]-1) +'&start_rev_index='+(values[0]-1),
+						contentType : 'application/octet-stream; charset=utf-8',
+						success : function(result) {
+							console.log("Start Redraw Visualization");
+
+							var dataset = $.parseJSON(result);
+							historyflow(svg, width, height, dataset);
+							$('#vizChart').fadeIn(300);
+						}
+					});
+				});
+			},
 
 			/*
 			 * save the svg object to image locally
@@ -1025,6 +1100,27 @@
 				}
 			}
 		});
+		
+		/*
+		 * Initiate the add author function pop-up window
+		 */
+		$( "#addauthor_dialog_form" ).dialog({
+			autoOpen: false,
+			height: 300,
+			width: 500,
+			modal: true,
+			buttons: {
+				"Add An Author": function() {
+					var addauthor_doc_id = $('#addauthor_doc_id').val();
+					var addauthor_author_name = $('#addauthor_author_name').val();
+					helper.addAuthor(addauthor_doc_id, addauthor_author_name);
+					$( this ).dialog( "close" );
+				},
+				Cancel: function() {
+					$( this ).dialog( "close" );
+				}
+			}
+		});
 
 		if($('[data-clientid="YOUR_CLIENT_ID"]').length > 0) {
 		 	alert('This sample requires your OAuth credentials (client ID) '
@@ -1110,18 +1206,25 @@
 				}));
 
 		var legend = svg.selectAll("authorGroup").data(authors).enter().append(
-		 	"rect").attr("class", "segment").attr("x", 0).attr("y",
+		 	"rect")
+		.attr("class", "segment").attr("x", 0).attr("y",
 		 	function(d, i) {
 		 		return i * (barHeight + 5 );
-		 	})
-		 	.attr("width", 40)
-		 	.attr("height", barHeight).attr(
-		 		"fill", function(d, i) {
-		 			return color(i);
-		 		}).attr(
-		 		"transform",
-		 		"translate(" + (margin.left )+ ","
-		 			+ (height - margin.bottom ) + ")");
+	 	})
+	 	.attr("width", 40)
+	 	.attr("height", barHeight).attr(
+	 		"fill", function(d, i) {
+	 			return color(i);
+	 		})
+	 	.attr(
+	 		"transform",
+	 		"translate(" + (margin.left )+ ","
+	 			+ (height - margin.bottom ) + ")")
+	 	//work on the "authors being there without editing anything" issue, the change will only effect the author label. code by Dakuo
+		.on("click", function(d) {
+			$('#addauthor_doc_id').val(doc_id);
+			$('#addauthor_dialog_form').dialog( "open" );
+		});
 
 		// var author contribution in the final revision
 		var authorContribution = [];
@@ -1192,10 +1295,9 @@
 					.attr(
 						"transform", "translate(" + margin.left + "," + (margin.top - (5*barHeight))
 							+ ")")
-					//work on the "authors on but not doing editing thing, changes will only effect the author label"
+					//work on the "authors being there without editing anything" issue, the change will only effect the author label. code by Dakuo
 					.on("click", function(d) {
 						$('#authorlabel_change_doc_id').val(doc_id);
-						//$('#change_seg_id_author').val(d);
 						$('#authorlabel_change_rev_id').val($(this).attr("rev"));
 						$('#authorlabel_dialog_form').dialog( "open" );
 					});
@@ -1217,10 +1319,9 @@
 					.attr(
 						"transform", "translate(" + margin.left + "," + (margin.top - (5*barHeight))
 							+ ")")
-					//work on the "authors on but not doing editing thing, changes will only effect the author label"
+					//work on the "authors being there without editing anything" issue, the change will only effect the author label. code by Dakuo
 					.on("click", function() {
 						$('#authorlabel_change_doc_id').val(doc_id);
-						//$('#change_seg_id_author').val(d);
 						$('#authorlabel_change_rev_id').val($(this).attr("rev"));
 						$('#authorlabel_dialog_form').dialog( "open" );
 					});
