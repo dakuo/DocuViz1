@@ -220,8 +220,7 @@
 
 				// KUBI Components
 				// $('.billboard').hide();
-				$('.billboard__content-wrap').addClass('isActive');
-        		$('.billboard__image-wrap').addClass('isActive');
+
 
 				$('.loading-screen').hide();
         		$('.docuviz-controller').hide();
@@ -239,6 +238,8 @@
 
 					// After we load the Google+ API, render the profile data from Google+.
 					gapi.client.load('plus', 'v1', this.renderProfile);
+					$('.billboard__content-wrap').addClass('isActive');
+					$('.billboard__image-wrap').addClass('isActive');
 
 				} else if (authResult['error']) {
 					// There was an error, which means the user is not signed in.
@@ -821,7 +822,7 @@
 					});
 				});
 			},
-			
+
 			/*
 			 *	add a missing author to the document
 			 *
@@ -1100,7 +1101,7 @@
 				}
 			}
 		});
-		
+
 		/*
 		 * Initiate the add author function pop-up window
 		 */
