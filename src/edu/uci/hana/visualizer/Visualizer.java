@@ -2056,7 +2056,7 @@ public class Visualizer {
 
 			String line = br.readLine();
 			int startIndex = 0;
-			int endIndex = 99999; //ALERT! let's hope no document revision will exceed this number.
+			int endIndex = 9999; //ALERT! let's hope no document revision will exceed this number.
 			// the first time visualization, there won't be start_rev_index and end_rev_index
 			if (request.getParameter("start_rev_index") != null) {
 				startIndex =  Integer.parseInt(request.getParameter("start_rev_index"));
