@@ -2,3 +2,4 @@
 javac -sourcepath src -d bin -classpath "lib/*" src/edu/uci/hana/visualizer/Visualizer.java
 java -classpath "bin:lib/*" edu/uci/hana/visualizer/Visualizer 
 
+aa
